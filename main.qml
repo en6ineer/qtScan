@@ -4,126 +4,146 @@ import QtQuick.Layouts
 
 ApplicationWindow {
     visible: true
-   // width: 400
-   // height: 300
-    title: "Сканер"
+    title: "1Sklad"
 
-    // Определяем StackView
+    // StackView для управления страницами
     StackView {
-        id: mainStackView
-        anchors.fill: parent // StackView занимает всю доступную область окна
+        id: stackView
+        anchors.fill: parent
+        anchors.bottom: navigationBar.top
+        initialItem: mainPage
 
-        // Главная страница
-        initialItem: Page {
-            id: mainPage
-
-            ToolBar {
-                id: mainToolbar
-                contentHeight: backButton.implicitHeight
-
-                Label {
-                    text: "Главная страница"
-                    font.pixelSize: 48
-                    horizontalAlignment: Text.AlignHCenter
-                    anchors.centerIn: parent
-                }
-
-                Button {
-                    id: backButton
-                    text: "Назад"
-                    font.pixelSize: 48
-                    //width: 100
-                    //height: 40
-                    visible: mainStackView.depth > 1 // Показать кнопку только при наличии страниц для возврата
-                    onClicked: mainStackView.pop() // Возвращаемся на предыдущую страницу
-                }
-            }
-
-            ColumnLayout {
-                anchors.fill: parent
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.verticalCenter: parent.verticalCenter
-                spacing: 10
-
-                Text {
-                    text: "Главная страница"
-                    font.bold: true
-                    font.pixelSize: 48
-                    Layout.alignment: Qt.AlignHCenter
-                }
-
-                Column{
-                        Layout.alignment: Qt.AlignHCenter
-                        spacing: 5 // Отступ между полями ввода
-
-                    // Элементы ввода
-                    TextField {
-                        placeholderText: "Логин"
-                        Layout.alignment: Qt.AlignHCenter
-                        Layout.preferredWidth: parent.width * 0.8
-                        Layout.preferredHeight: 60
-                        font.pixelSize: 40
-                    }
-
-                    TextField {
-                        placeholderText: "Пароль"
-                        Layout.alignment: Qt.AlignHCenter
-                        Layout.preferredWidth: parent.width * 0.8
-                        Layout.preferredHeight: 60
-                        font.pixelSize: 40
-                        echoMode: TextInput.Password // Скрываем вводимый текст
-                    }
-                }
-
-
-                Button {
-                    text: "Авторизация"
-                    font.pixelSize: 48
-                    Layout.alignment: Qt.AlignHCenter
-                    Layout.preferredWidth: parent.width * 0.8
-                    Layout.preferredHeight: parent.height * 0.1
-                    onClicked: mainStackView.push(desktopPage)
-                }
-            }
-        }
-
-        // Страница Рабочего стола
         Component {
-            id: desktopPage
-
+            id: mainPage
             Page {
-                ToolBar {
-                    id: desktopToolbar
-                    contentHeight: backButton.implicitHeight
-
-                    Label {
-                        text: "Рабочий стол"
-                        font.pixelSize: 64
-                        horizontalAlignment: Text.AlignHCenter
-                        anchors.centerIn: parent
-                    }
-
-                    Button {
-                        id: backButton
-                        text: "Назад"
-                        font.pixelSize: 48
-                        onClicked: mainStackView.pop() // Возвращаемся на предыдущую страницу
-                    }
-                }
-
                 ColumnLayout {
                     anchors.fill: parent
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.verticalCenter: parent.verticalCenter
-                    spacing: 20
+                    spacing: 10
 
                     Text {
-                        text: "Это ваш рабочий стол"
+                        text: "Главная страница"
                         font.bold: true
                         font.pixelSize: 48
                         Layout.alignment: Qt.AlignHCenter
                     }
+
+
+                        // Элементы ввода
+                        TextField {
+                            placeholderText: "Логин"
+                            Layout.alignment: Qt.AlignHCenter
+                            Layout.preferredWidth: parent.width * 0.8
+                            Layout.preferredHeight: 60
+                            font.pixelSize: 40
+                        }
+
+                        TextField {
+                            placeholderText: "Пароль"
+                            Layout.alignment: Qt.AlignHCenter
+                            Layout.preferredWidth: parent.width * 0.8
+                            Layout.preferredHeight: 60
+                            font.pixelSize: 40
+                            echoMode: TextInput.Password
+                        }
+
+
+                        Button {
+                            id: authButton
+                            text: "Авторизация"
+                            font.pixelSize: 48
+                            Layout.alignment: Qt.AlignHCenter
+                            Layout.preferredWidth: parent.width * 0.8
+                            Layout.preferredHeight: parent.height * 0.1
+                            //visible: true
+                        }
+
                 }
+            }
+        }
+
+        Component {
+            id: secondPage
+            Page {
+                Label {
+                    text: "Вторая"
+                    anchors.centerIn: parent
+                    font.pixelSize: 32
+                }
+            }
+        }
+
+        Component {
+            id: thirdPage
+            Page {
+                Label {
+                    text: "Третья"
+                    anchors.centerIn: parent
+                    font.pixelSize: 32
+                }
+            }
+        }
+    }
+
+
+    Rectangle {
+        id: navigationBar
+        color: "lightgray"
+        width: parent.width
+        height: parent.height * 0.07
+        anchors.bottom: parent.bottom
+
+        RowLayout {
+            anchors.fill: parent
+            anchors.margins: 5
+
+            Button {
+                id: but1
+                text: "Главная"
+                Layout.fillWidth: true
+                onClicked: stackView.replace(mainPage)
+                font.pixelSize: 48
+                Layout.preferredWidth: parent.width * 0.30
+                Layout.preferredHeight: 120
+                background: Rectangle {
+                                color: but1.pressed ? "lightblue" : "lightgray"
+                                border.color: "black"
+                                border.width: 1
+                                radius: 0
+                            }
+            }
+
+            Button {
+                id: but2
+                text: "Вторая"
+                Layout.fillWidth: true
+                onClicked: stackView.replace(secondPage)
+                font.pixelSize: 48
+                Layout.preferredWidth: parent.width * 0.30
+                Layout.preferredHeight: 120
+                background: Rectangle {
+                                color: but2.pressed ? "lightblue" : "lightgray"
+                                border.color: "black"
+                                border.width: 1
+                                radius: 0
+                            }
+            }
+
+            Button {
+                id: but3
+                text: "Настройки"
+                Layout.fillWidth: true
+                onClicked: stackView.replace(thirdPage)
+                font.pixelSize: 48
+                Layout.preferredWidth: parent.width * 0.30
+                Layout.preferredHeight: 120
+                background: Rectangle {
+                                color: but3.pressed ? "lightblue" : "lightgray"
+                                border.color: "black"
+                                border.width: 1
+                                radius: 0
+                            }
             }
         }
     }
