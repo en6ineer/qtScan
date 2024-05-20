@@ -29,7 +29,9 @@ target_link_libraries(qtandrApp PRIVATE
     Qt6::Qml
     Qt6::Quick
 )
-
+set_target_properties(qtandrApp PROPERTIES
+       QT_ANDROID_PACKAGE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/android
+   )
 set(QT_QML_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/qml)
 set(QML_IMPORT_PATH ${QT_QML_OUTPUT_DIRECTORY}
     CACHE STRING "Import paths for Qt Creator's code model"
