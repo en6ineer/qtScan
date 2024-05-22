@@ -1,3 +1,6 @@
+//My notes:
+// Before build apk need replace fontsize in all elements
+
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
@@ -6,7 +9,6 @@ ApplicationWindow {
     visible: true
     title: "1Sklad"
 
-    // StackView для управления страницами
     StackView {
         id: stackView
         anchors.fill: parent
@@ -16,56 +18,53 @@ ApplicationWindow {
         Component {
             id: mainPage
             Page {
+
+                Label {
+                    id: labelMainPage
+                    text: "Главная страница"
+                    font.bold: true
+                    font.pixelSize: 48//36
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
+
+
                 ColumnLayout {
                     anchors.fill: parent
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.verticalCenter: parent.verticalCenter
+                    //anchors.verticalCenter: parent.verticalCenter
+                    anchors.top: parent.top // Привязка к верхней границе окна
+                    anchors.horizontalCenter: parent.horizontalCenter // Выравнивание по горизонта
                     spacing: 10
 
-                    Text {
-                        id: resolutionTextField
-                        text: "Главная страница"
-                        font.bold: true
-                        font.pixelSize: 48
+                    // Элементы ввода
+                    TextField {
+                        placeholderText: "Логин"
                         Layout.alignment: Qt.AlignHCenter
+                        Layout.preferredWidth: parent.width * 0.8
+                        Layout.preferredHeight: 60
+                        font.pixelSize: 40//36
+                    }
+
+                    TextField {
+                        id: passField
+                        placeholderText: "Пароль"
+                        Layout.alignment: Qt.AlignHCenter
+                        Layout.preferredWidth: parent.width * 0.8
+                        Layout.preferredHeight: 60
+                        font.pixelSize: 40//36
+                        echoMode: TextInput.Password
                     }
 
 
-                        // Элементы ввода
-                        TextField {
-
-                            placeholderText: "Логин"
-                            Layout.alignment: Qt.AlignHCenter
-                            Layout.preferredWidth: parent.width * 0.8
-                            Layout.preferredHeight: 60
-                            font.pixelSize: 40
-                        }
-
-                        TextField {
-                            placeholderText: "Пароль"
-                            Layout.alignment: Qt.AlignHCenter
-                            Layout.preferredWidth: parent.width * 0.8
-                            Layout.preferredHeight: 60
-                            font.pixelSize: 40
-                            echoMode: TextInput.Password
-                        }
-
-
-                        Button {
-                            id: authButton
-                            text: "Авторизация"
-                            font.pixelSize: 48
-                            Layout.alignment: Qt.AlignHCenter
-                            Layout.preferredWidth: parent.width * 0.8
-                            Layout.preferredHeight: parent.height * 0.1
-                            onClicked: {
-                                      // resolutionTextField.text = "Ширина экрана: " + Screen.desktopAvailableWidth
-                                    resolutionTextField.text =  "Высота экрана: " + Screen.desktopAvailableHeight
-                                   }
-                            //visible: true
-                        }
-
-                }
+                    Button {
+                        id: authButton
+                        text: "Авторизация"
+                        font.pixelSize: 48//36
+                        Layout.alignment: Qt.AlignHCenter
+                        //Layout.topMargin: passField.bottom
+                        Layout.preferredWidth: parent.width * 0.6
+                        Layout.preferredHeight: parent.height * 0.1
+                    }
+                }//columnLayout
             }
         }
 
@@ -73,10 +72,11 @@ ApplicationWindow {
             id: secondPage
             Page {
                 Label {
-                    text: "Вторая"
-                    anchors.centerIn: parent
+                    text: "Рабочий стол"
+                    anchors.horizontalCenter:  parent.horizontalCenter
                     font.pixelSize: 32
                 }
+
                 ListView {
                     width: parent.width
                     height: parent.height
@@ -111,8 +111,8 @@ ApplicationWindow {
             id: thirdPage
             Page {
                 Label {
-                    text: "Третья"
-                    anchors.centerIn: parent
+                    text: "Настройки программы"
+                    anchors.horizontalCenter:  parent.horizontalCenter
                     font.pixelSize: 32
                 }
             }
@@ -124,7 +124,7 @@ ApplicationWindow {
         id: navigationBar
         color: "lightgray"
         width: parent.width
-        height: parent.height * 0.07
+        height: parent.height * 0.05
         anchors.bottom: parent.bottom
 
         RowLayout {
@@ -136,9 +136,9 @@ ApplicationWindow {
                 text: "Главная"
                 Layout.fillWidth: true
                 onClicked: stackView.replace(mainPage)
-                font.pixelSize: 48
+                font.pixelSize: 48//24
                 Layout.preferredWidth: parent.width * 0.30
-                Layout.preferredHeight: 120
+                Layout.preferredHeight: parent.width * 0.10
                 background: Rectangle {
                                 color: but1.pressed ? "lightblue" : "lightgray"
                                 border.color: "black"
@@ -149,12 +149,12 @@ ApplicationWindow {
 
             Button {
                 id: but2
-                text: "Вторая"
+                text: "Документ"
                 Layout.fillWidth: true
                 onClicked: stackView.replace(secondPage)
-                font.pixelSize: 48
+                font.pixelSize: 48//24
                 Layout.preferredWidth: parent.width * 0.30
-                Layout.preferredHeight: 120
+                Layout.preferredHeight: parent.width * 0.10
                 background: Rectangle {
                                 color: but2.pressed ? "lightblue" : "lightgray"
                                 border.color: "black"
@@ -168,9 +168,9 @@ ApplicationWindow {
                 text: "Настройки"
                 Layout.fillWidth: true
                 onClicked: stackView.replace(thirdPage)
-                font.pixelSize: 48
+                font.pixelSize: 48//24
                 Layout.preferredWidth: parent.width * 0.30
-                Layout.preferredHeight: 120
+                Layout.preferredHeight: parent.width * 0.10
                 background: Rectangle {
                                 color: but3.pressed ? "lightblue" : "lightgray"
                                 border.color: "black"
@@ -181,6 +181,8 @@ ApplicationWindow {
         }
     }
 }
+
+
 
 // import QtQuick 2.15
 // import QtQuick.Controls 2.15
@@ -414,3 +416,91 @@ ApplicationWindow {
 // }
 
 
+
+// import QtQuick 2.15
+// import QtQuick.Controls 2.15
+// import QtQuick.Layouts 1.15
+
+// ApplicationWindow {
+//     visible: true
+//     width: 400
+//     height: 600
+//     title: "Штрихкоды и Количество"
+
+//     property var barcodesModel: ListModel {
+//         ListElement { barcode: "1234567890123"; quantity: 1 }
+//         ListElement { barcode: "9876543210987"; quantity: 2 }
+//     }
+
+//     ColumnLayout {
+//         anchors.fill: parent
+//         spacing: 10
+
+//         // Заголовки колонок
+//         GridLayout {
+//             Layout.fillWidth: true
+//             columns: 2
+//             Rectangle {
+//                 Layout.fillWidth: true
+//                 height: 40
+//                 color: "lightgray"
+//                 border.color: "black"
+//                 border.width: 1
+//                 Text {
+//                     anchors.centerIn: parent
+//                     text: "Штрихкод"
+//                     font.bold: true
+//                 }
+//             }
+//             Rectangle {
+//                 Layout.fillWidth: true
+//                 height: 40
+//                 color: "lightgray"
+//                 border.color: "black"
+//                 border.width: 1
+//                 Text {
+//                     anchors.centerIn: parent
+//                     text: "Количество"
+//                     font.bold: true
+//                 }
+//             }
+//         }
+
+//         // Таблица
+//         ListView {
+//             Layout.fillWidth: true
+//             Layout.fillHeight: true
+//             model: barcodesModel
+//             delegate: RowLayout {
+//                 Rectangle {
+//                     Layout.fillWidth: true
+//                     height: 40
+//                     border.color: "black"
+//                     border.width: 1
+//                     Text {
+//                         anchors.centerIn: parent
+//                         text: model.barcode
+//                     }
+//                 }
+//                 Rectangle {
+//                     Layout.fillWidth: true
+//                     height: 40
+//                     border.color: "black"
+//                     border.width: 1
+//                     Text {
+//                         anchors.centerIn: parent
+//                         text: model.quantity
+//                     }
+//                 }
+//             }
+//         }
+
+//         Button {
+//             text: "Добавить штрихкод"
+//             Layout.alignment: Qt.AlignHCenter
+//             onClicked: {
+//                 barcodesModel.append({"barcode": "0000000000000", "quantity": 1})
+//             }
+//         }
+//     }
+// }
