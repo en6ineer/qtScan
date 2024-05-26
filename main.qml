@@ -77,32 +77,122 @@ ApplicationWindow {
                     font.pixelSize: 32
                 }
 
-                ListView {
-                    width: parent.width
-                    height: parent.height
-                    model: ListModel {
-                        ListElement {
-                            barcode: "123456789"
-                            quantity: 10
+
+                property var barcodesModel: ListModel {
+                        ListElement { barcode: "1234567890123"; quantity: 1 }
+                        ListElement { barcode: "9876543210987"; quantity: 200 }
+                    }
+
+                    ColumnLayout {
+                        anchors.fill: parent
+                        anchors.top: parent.top // Привязка к верхней границе окна
+                        anchors.horizontalCenter: parent.horizontalCenter // Выравнивание по горизонта
+                        spacing: 5
+                        // Заголовки колонок
+                        GridLayout {
+                            Layout.topMargin: 100
+                            Layout.fillWidth: true
+                            columns: 2
+                            Rectangle {
+                                Layout.fillWidth: true
+                                height: 40
+                                color: "lightgray"
+                                border.color: "black"
+                                border.width: 1
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: "Штрихкод"
+                                    font.bold: true
+                                }
+                            }
+                            Rectangle {
+                                Layout.fillWidth: true
+                                height: 40
+                                color: "lightgray"
+                                border.color: "black"
+                                border.width: 1
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: "Количество"
+                                    font.bold: true
+                                }
+                            }
+                        }//GridLayout
+
+                        // Таблица
+                        ListView {
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            model: barcodesModel
+                            delegate: RowLayout {
+                                spacing: 10 // Пространство между колонками
+                                Layout.fillWidth: true
+                                Layout.fillHeight: true
+                                Layout.alignment: Qt.AlignRight // Выравниваем по правому краю
+                                Rectangle {
+                                    Layout.fillWidth: true
+                                    height: 40
+                                    border.color: "black"
+                                    border.width: 1
+                                    Text {
+                                        //anchors.centerIn: parent
+                                        text: model.barcode
+                                    }
+                                }
+
+                                Rectangle {
+                                    Layout.alignment: Qt.AlignRight // Выравниваем по правому краю
+                                    Layout.preferredWidth: 100  // Устанавливаем фиксированную ширину для колонки "Количество"
+                                    height: 40
+                                    border.color: "black"
+                                    border.width: 1
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: model.quantity
+                                    }
+                                }
+                            }
                         }
-                        ListElement {
-                            barcode: "987654321"
-                            quantity: 5
+
+
+
+                        }//ColumnLayout
+                    Button {
+                        text: "Добавить штрихкод"
+                        //Layout.alignment: Qt.AlignHCenter
+                        scale: 2
+                        anchors.centerIn: parent
+                        onClicked: {
+                            barcodesModel.append({"barcode": "0000000000000", "quantity": 1})
                         }
                     }
 
-                    delegate: RowLayout {
-                        spacing: 10
-                        Text {
-                            text: model.barcode
-                            font.pixelSize: 24
-                        }
-                        Text {
-                            text: model.quantity
-                            font.pixelSize: 24
-                        }
-                    }
-                }
+                // ListView {
+                //     width: parent.width
+                //     height: parent.height
+                //     model: ListModel {
+                //         ListElement {
+                //             barcode: "123456789"
+                //             quantity: 10
+                //         }
+                //         ListElement {
+                //             barcode: "987654321"
+                //             quantity: 5
+                //         }
+                //     }
+
+                //     delegate: RowLayout {
+                //         spacing: 10
+                //         Text {
+                //             text: model.barcode
+                //             font.pixelSize: 24
+                //         }
+                //         Text {
+                //             text: model.quantity
+                //             font.pixelSize: 24
+                //         }
+                //     }
+                // }//ListView
 
             }
         }
