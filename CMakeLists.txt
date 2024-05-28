@@ -14,6 +14,8 @@ if (Qt6_VERSION VERSION_GREATER_EQUAL 6.3)
 endif()
 
 qt_add_executable(qtandrApp src/main.cpp
+    src/HttpClient.h
+    src/HttpClient.cpp
 
 )
 
@@ -37,6 +39,14 @@ set(QML_IMPORT_PATH ${QT_QML_OUTPUT_DIRECTORY}
     CACHE STRING "Import paths for Qt Creator's code model"
     FORCE
 )
+
+include(lib/android_openssl/android_openssl.cmake)
+#qt_add_executable(qtandrApp)
+
+if (ANDROID)
+    add_android_openssl_libraries(qtandrApp)
+endif()
+
 
 if (BUILD_QDS_COMPONENTS)
     include(${CMAKE_CURRENT_SOURCE_DIR}/qmlcomponents)

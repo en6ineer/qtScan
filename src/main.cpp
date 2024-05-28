@@ -3,16 +3,21 @@
 
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
-
+#include <QQmlContext>
 #include "app_environment.h"
 #include "import_qml_components_plugins.h"
 #include "import_qml_plugins.h"
+#include "HttpClient.h"
 
 int main(int argc, char *argv[])
 {
     set_qt_environment();
 
     QGuiApplication app(argc, argv);
+
+
+
+
 
     QQmlApplicationEngine engine;
     const QUrl url(u"qrc:/qt/qml/Main/main.qml"_qs);
@@ -25,6 +30,9 @@ int main(int argc, char *argv[])
                 QCoreApplication::exit(-1);
         },
         Qt::QueuedConnection);
+
+    HttpClient httpClient;
+    engine.rootContext()->setContextProperty("httpClient", &httpClient);
 
     engine.addImportPath(QCoreApplication::applicationDirPath() + "/qml");
     engine.addImportPath(":/");

@@ -9,6 +9,11 @@ ApplicationWindow {
     visible: true
     title: "1Sklad"
 
+    property var barcodesModel: ListModel {
+            ListElement { barcode: "1234567890123"; quantity: 1 }
+            ListElement { barcode: "9876543210987"; quantity: 200 }
+        }
+
     StackView {
         id: stackView
         anchors.fill: parent
@@ -78,10 +83,7 @@ ApplicationWindow {
                 }
 
 
-                property var barcodesModel: ListModel {
-                        ListElement { barcode: "1234567890123"; quantity: 1 }
-                        ListElement { barcode: "9876543210987"; quantity: 200 }
-                    }
+
 
                     ColumnLayout {
                         anchors.fill: parent
@@ -201,10 +203,44 @@ ApplicationWindow {
             id: thirdPage
             Page {
                 Label {
+                    id: responseText
                     text: "Настройки программы"
                     anchors.horizontalCenter:  parent.horizontalCenter
                     font.pixelSize: 32
                 }
+
+
+                Column {
+                       anchors.fill: parent
+                       // TextArea {
+                       //     id: responseText
+                       //     width: parent.width * 0.5
+                       //     height: parent.height * 0.5
+                       //     readOnly: true
+                       //     text: "ababababdbsdbasd"
+                       // }
+                       Button {
+                                   text: "Make POST Request"
+                                   scale: 1.5
+                                   onClicked: {
+                                       var data = {};
+                                              for (var i = 0; i < barcodesModel.count; i++) {
+                                                  var item = barcodesModel.get(i);
+                                                  data[item.barcode] = item.quantity;
+                                              }
+                                       //httpClient.makeGetRequest("http://192.168.1.138//Bot/ru_RU/hs/bots/ping")
+                                       httpClient.makePostRequest("http://192.168.1.138//Bot/ru_RU/hs/bots/test", data)
+                                   }
+                               }
+                   }
+
+                Connections {
+                       target: httpClient
+                       function onRequestFinished(response) {
+                           responseText.text = response;
+                       }
+                   }
+
             }
         }
     }
