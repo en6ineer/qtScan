@@ -10,15 +10,19 @@ ApplicationWindow {
     visible: true
     title: "1Sklad"
 
-    property var barcodesModel: TableModel {
-            TableModelColumn { display: "barcode" }
-            TableModelColumn { display: "quantity" }
+    // property var barcodesModel: TableModel {
+    //         TableModelColumn { display: "barcode" }
+    //         TableModelColumn { display: "quantity" }
 
-            rows: [
-                { "barcode": "1234567890123", "quantity": 1 },
-                { "barcode": "9876543210987", "quantity": 200 }
-            ]
-        }
+    //         rows: [
+    //             { "barcode": "1234567890123", "quantity": 1 },
+    //             { "barcode": "9876543210987", "quantity": 200 }
+    //         ]
+    //     }
+    property var barcodesModel: ListModel {
+                ListElement { barcode: "1234567890123"; quantity: 1 }
+                ListElement { barcode: "9876543210987"; quantity: 200 }
+            }
 
     StackView {
         id: stackView
@@ -87,6 +91,14 @@ ApplicationWindow {
                     anchors.horizontalCenter:  parent.horizontalCenter
                     font.pixelSize: 32
                 }
+                //Необходимо сделать:
+                //1) Таблицу содержащую штрихкод количество
+                //2) Привязать значение таблицы к структуре которую потом передавать на сервер
+                //3) Поле вводе для штрихкода
+                //4) Событие для всей формы чтобы курсор всегда стоял на поле ввода
+                //5) Событие для изменения количества в таблице, вызов диалога
+                //6) Такой же диалог для изменения штрихкода в таблице
+                //7) Кнопка отправить в 1С
 
                 ColumnLayout {
                                    anchors.fill: parent
@@ -136,6 +148,8 @@ ApplicationWindow {
                                        delegate: Item {
                                            width: 400
                                            height: 40
+                                           implicitHeight: 40
+                                           implicitWidth: 400
                                            RowLayout {
                                                Rectangle {
                                                    width: 250
@@ -161,44 +175,19 @@ ApplicationWindow {
                                        }
                                    }
 
-                                   Button {
-                                       text: "Добавить штрихкод"
-                                       Layout.alignment: Qt.AlignHCenter
-                                       onClicked: {
-                                           barcodesModel.append({"barcode": "0000000000000", "quantity": 1})
-                                       }
-                                   }
-                               }
+                               }//columnlayout
 
-                // ListView {
-                //     width: parent.width
-                //     height: parent.height
-                //     model: ListModel {
-                //         ListElement {
-                //             barcode: "123456789"
-                //             quantity: 10
-                //         }
-                //         ListElement {
-                //             barcode: "987654321"
-                //             quantity: 5
-                //         }
-                //     }
+                Button {
+                    text: "Добавить штрихкод"
+                    //Layout.alignment: Qt.AlignHCenter
+                    anchors.centerIn: parent.Center
+                    onClicked: {
+                        barcodesModel.append({"barcode": "0000000000000", "quantity": 1})
+                    }
+                }
 
-                //     delegate: RowLayout {
-                //         spacing: 10
-                //         Text {
-                //             text: model.barcode
-                //             font.pixelSize: 24
-                //         }
-                //         Text {
-                //             text: model.quantity
-                //             font.pixelSize: 24
-                //         }
-                //     }
-                // }//ListView
-
-            }
-        }
+            }//page
+        }//component
 
         Component {
             id: thirdPage
@@ -209,6 +198,13 @@ ApplicationWindow {
                     anchors.horizontalCenter:  parent.horizontalCenter
                     font.pixelSize: 32
                 }
+                //Необходимо сделать:
+                //1) Поля url
+                //2) Поля с логином паролем
+                //3) Поле для лицензионного ключа
+                //4) Проверку на этот ключ
+                //5) Возможность записи системных настроек в бин файл на устройстве, и его чтение при запуске
+                //6) Лог окно для отладки ошибок.
 
                 Label {
                     scale: 2
@@ -218,11 +214,6 @@ ApplicationWindow {
                     anchors.verticalCenter: parent.verticalCenter
                     font.pixelSize: 32
                 }
-
-
-
-
-
                        Button {
                            anchors.topMargin: parent.top + 30
                            anchors.horizontalCenter: parent.horizontalCenter
@@ -324,326 +315,3 @@ ApplicationWindow {
         }
     }
 }
-
-
-
-// import QtQuick 2.15
-// import QtQuick.Controls 2.15
-// import QtQuick.Layouts 1.15
-
-// ApplicationWindow {
-//     visible: true
-//     // width: 400
-//     // height: 600
-//     title: "1Sklad"
-
-//     // Объявление свойств для хранения данных
-//     property string loginText: ""
-//     property string passwordText: ""
-//     property var barcodes: []
-
-//     // StackView для управления страницами
-//     StackView {
-//         id: stackView
-//         anchors.fill: parent
-//         initialItem: mainPageLoader.item
-
-//         Loader {
-//             id: mainPageLoader
-//             sourceComponent: mainPage
-//         }
-
-//         Loader {
-//             id: secondPageLoader
-//             sourceComponent: secondPage
-//         }
-
-//         Loader {
-//             id: thirdPageLoader
-//             sourceComponent: thirdPage
-//         }
-//     }
-
-//     Component {
-//         id: mainPage
-//         Page {
-//             ColumnLayout {
-//                 anchors.fill: parent
-//                 anchors.horizontalCenter: parent.horizontalCenter
-//                 anchors.verticalCenter: parent.verticalCenter
-//                 spacing: 10
-
-//                 Text {
-//                     text: "Главная страница"
-//                     font.bold: true
-//                     font.pixelSize: 48
-//                     Layout.alignment: Qt.AlignHCenter
-//                 }
-
-//                 // Элементы ввода
-//                 TextField {
-//                     placeholderText: "Логин"
-//                     text: loginText
-//                     onTextChanged: loginText = text
-//                     Layout.alignment: Qt.AlignHCenter
-//                     Layout.preferredWidth: parent.width * 0.8
-//                     Layout.preferredHeight: 60
-//                     font.pixelSize: 40
-//                 }
-
-//                 TextField {
-//                     placeholderText: "Пароль"
-//                     text: passwordText
-//                     onTextChanged: passwordText = text
-//                     Layout.alignment: Qt.AlignHCenter
-//                     Layout.preferredWidth: parent.width * 0.8
-//                     Layout.preferredHeight: 60
-//                     font.pixelSize: 40
-//                     echoMode: TextInput.Password // Скрываем вводимый текст
-//                 }
-
-//                 Button {
-//                     id: authButton
-//                     text: "Авторизация"
-//                     font.pixelSize: 48
-//                     Layout.alignment: Qt.AlignHCenter
-//                     Layout.preferredWidth: parent.width * 0.8
-//                     Layout.preferredHeight: parent.height * 0.1
-//                     visible: true
-//                     onClicked: {
-//                         console.log("Авторизация нажата")
-//                         stackView.push(secondPageLoader.item)
-//                     }
-//                     Component.onCompleted: {
-//                         console.log("Кнопка авторизации инициализирована")
-//                     }
-//                 }
-//             }
-//         }
-//     }
-
-//     Component {
-//         id: secondPage
-//         Page {
-//             ColumnLayout {
-//                 anchors.fill: parent
-//                 anchors.horizontalCenter: parent.horizontalCenter
-//                 anchors.verticalCenter: parent.verticalCenter
-//                 spacing: 10
-
-//                 Text {
-//                     text: "Вторая страница"
-//                     font.bold: true
-//                     font.pixelSize: 48
-//                     Layout.alignment: Qt.AlignHCenter
-//                 }
-
-//                 // Список штрихкодов и количеств
-//                 ListView {
-//                     width: parent.width * 0.9
-//                     height: parent.height * 0.7
-//                     model: barcodes
-//                     delegate: RowLayout {
-//                         spacing: 10
-//                         Text { text: modelData.barcode }
-//                         Text { text: modelData.quantity }
-//                     }
-//                 }
-
-//                 Button {
-//                     text: "Добавить штрихкод"
-//                     onClicked: {
-//                         barcodes.push({ barcode: "123456789", quantity: 1 })
-//                     }
-//                 }
-//             }
-//         }
-//     }
-
-//     Component {
-//         id: thirdPage
-//         Page {
-//             ColumnLayout {
-//                 anchors.fill: parent
-//                 anchors.horizontalCenter: parent.horizontalCenter
-//                 anchors.verticalCenter: parent.verticalCenter
-//                 spacing: 10
-
-//                 Text {
-//                     text: "Третья страница"
-//                     font.bold: true
-//                     font.pixelSize: 48
-//                     Layout.alignment: Qt.AlignHCenter
-//                 }
-
-//                 TextField {
-//                     placeholderText: "URL 1"
-//                     Layout.alignment: Qt.AlignHCenter
-//                     Layout.preferredWidth: parent.width * 0.8
-//                     Layout.preferredHeight: 60
-//                     font.pixelSize: 40
-//                 }
-
-//                 TextField {
-//                     placeholderText: "URL 2"
-//                     Layout.alignment: Qt.AlignHCenter
-//                     Layout.preferredWidth: parent.width * 0.8
-//                     Layout.preferredHeight: 60
-//                     font.pixelSize: 40
-//                 }
-//             }
-//         }
-//     }
-
-//     // Навигационная панель с кнопками
-//     Rectangle {
-//         id: navigationBar
-//         color: "lightgray"
-//         width: parent.width
-//         height: parent.height * 0.07
-//         anchors.bottom: parent.bottom
-
-//         RowLayout {
-//             anchors.fill: parent
-//             anchors.margins: 5
-
-//             Button {
-//                 id: but1
-//                 text: "Главная"
-//                 Layout.fillWidth: true
-//                 onClicked: stackView.replace(mainPageLoader.item)
-//                 font.pixelSize: 48
-//                 Layout.preferredWidth: parent.width * 0.30
-//                 Layout.preferredHeight: 120
-//                 background: Rectangle {
-//                     color: but1.pressed ? "lightblue" : "lightgray"
-//                     border.color: "black"
-//                     border.width: 1
-//                     radius: 0 // Убираем скругление углов
-//                 }
-//             }
-
-//             Button {
-//                 id: but2
-//                 text: "Вторая"
-//                 Layout.fillWidth: true
-//                 onClicked: stackView.replace(secondPageLoader.item)
-//                 font.pixelSize: 48
-//                 Layout.preferredWidth: parent.width * 0.30
-//                 Layout.preferredHeight: 120
-//                 background: Rectangle {
-//                     color: but2.pressed ? "lightblue" : "lightgray"
-//                     border.color: "black"
-//                     border.width: 1
-//                     radius: 0 // Убираем скругление углов
-//                 }
-//             }
-
-//             Button {
-//                 id: but3
-//                 text: "Настройки"
-//                 Layout.fillWidth: true
-//                 onClicked: stackView.replace(thirdPageLoader.item)
-//                 font.pixelSize: 48
-//                 Layout.preferredWidth: parent.width * 0.30
-//                 Layout.preferredHeight: 120
-//                 background: Rectangle {
-//                     color: but3.pressed ? "lightblue" : "lightgray"
-//                     border.color: "black"
-//                     border.width: 1
-//                     radius: 0 // Убираем скругление углов
-//                 }
-//             }
-//         }
-//     }
-// }
-
-
-
-// import QtQuick 2.15
-// import QtQuick.Controls 2.15
-// import QtQuick.Layouts 1.15
-
-// ApplicationWindow {
-//     visible: true
-//     width: 400
-//     height: 600
-//     title: "Штрихкоды и Количество"
-
-//     property var barcodesModel: ListModel {
-//         ListElement { barcode: "1234567890123"; quantity: 1 }
-//         ListElement { barcode: "9876543210987"; quantity: 2 }
-//     }
-
-//     ColumnLayout {
-//         anchors.fill: parent
-//         spacing: 10
-
-//         // Заголовки колонок
-//         GridLayout {
-//             Layout.fillWidth: true
-//             columns: 2
-//             Rectangle {
-//                 Layout.fillWidth: true
-//                 height: 40
-//                 color: "lightgray"
-//                 border.color: "black"
-//                 border.width: 1
-//                 Text {
-//                     anchors.centerIn: parent
-//                     text: "Штрихкод"
-//                     font.bold: true
-//                 }
-//             }
-//             Rectangle {
-//                 Layout.fillWidth: true
-//                 height: 40
-//                 color: "lightgray"
-//                 border.color: "black"
-//                 border.width: 1
-//                 Text {
-//                     anchors.centerIn: parent
-//                     text: "Количество"
-//                     font.bold: true
-//                 }
-//             }
-//         }
-
-//         // Таблица
-//         ListView {
-//             Layout.fillWidth: true
-//             Layout.fillHeight: true
-//             model: barcodesModel
-//             delegate: RowLayout {
-//                 Rectangle {
-//                     Layout.fillWidth: true
-//                     height: 40
-//                     border.color: "black"
-//                     border.width: 1
-//                     Text {
-//                         anchors.centerIn: parent
-//                         text: model.barcode
-//                     }
-//                 }
-//                 Rectangle {
-//                     Layout.fillWidth: true
-//                     height: 40
-//                     border.color: "black"
-//                     border.width: 1
-//                     Text {
-//                         anchors.centerIn: parent
-//                         text: model.quantity
-//                     }
-//                 }
-//             }
-//         }
-
-//         Button {
-//             text: "Добавить штрихкод"
-//             Layout.alignment: Qt.AlignHCenter
-//             onClicked: {
-//                 barcodesModel.append({"barcode": "0000000000000", "quantity": 1})
-//             }
-//         }
-//     }
-// }
