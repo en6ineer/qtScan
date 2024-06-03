@@ -12,7 +12,7 @@ void HttpClient::makeGetRequest(const QString &url)
     request.setUrl(QUrl(url));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     // Захардкоженное значение Base64 для строки "логин:пароль"
-    QString authorizationHeader = "Basic Ym90OjEyMzQ1";
+    QString authorizationHeader = "Basic Ym90OjEyMzQ1"; //это для теста
     // Установка заголовка авторизации
     request.setRawHeader("Authorization", authorizationHeader.toUtf8());
     networkManager->get(request);

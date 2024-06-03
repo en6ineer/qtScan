@@ -4,14 +4,20 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import Qt.labs.qmlmodels 1.0
 
 ApplicationWindow {
     visible: true
     title: "1Sklad"
 
-    property var barcodesModel: ListModel {
-            ListElement { barcode: "1234567890123"; quantity: 1 }
-            ListElement { barcode: "9876543210987"; quantity: 200 }
+    property var barcodesModel: TableModel {
+            TableModelColumn { display: "barcode" }
+            TableModelColumn { display: "quantity" }
+
+            rows: [
+                { "barcode": "1234567890123", "quantity": 1 },
+                { "barcode": "9876543210987", "quantity": 200 }
+            ]
         }
 
     StackView {
@@ -82,92 +88,87 @@ ApplicationWindow {
                     font.pixelSize: 32
                 }
 
+                ColumnLayout {
+                                   anchors.fill: parent
+                                   spacing: 10
 
+                                   // Заголовок таблицы
+                                   RowLayout {
+                                       Layout.fillWidth: true
+                                       spacing: 1
+                                       Rectangle {
+                                           Layout.fillWidth: true
+                                           height: 40
+                                           color: "lightgray"
+                                           border.color: "black"
+                                           border.width: 1
+                                           Text {
+                                               anchors.centerIn: parent
+                                               text: "Штрихкод"
+                                               font.bold: true
+                                           }
+                                       }
+                                       Rectangle {
+                                           Layout.fillWidth: true
+                                           height: 40
+                                           color: "lightgray"
+                                           border.color: "black"
+                                           border.width: 1
+                                           Text {
+                                               anchors.centerIn: parent
+                                               text: "Количество"
+                                               font.bold: true
+                                           }
+                                       }
+                                   }
 
+                                   // Таблица
+                                   TableView {
+                                       Layout.fillWidth: true
+                                       Layout.fillHeight: true
+                                       columnSpacing: 1
+                                       rowSpacing: 1
+                                       model: barcodesModel
 
-                    ColumnLayout {
-                        anchors.fill: parent
-                        anchors.top: parent.top // Привязка к верхней границе окна
-                        anchors.horizontalCenter: parent.horizontalCenter // Выравнивание по горизонта
-                        spacing: 5
-                        // Заголовки колонок
-                        GridLayout {
-                            Layout.topMargin: 100
-                            Layout.fillWidth: true
-                            columns: 2
-                            Rectangle {
-                                Layout.fillWidth: true
-                                height: 40
-                                color: "lightgray"
-                                border.color: "black"
-                                border.width: 1
-                                Text {
-                                    anchors.centerIn: parent
-                                    text: "Штрихкод"
-                                    font.bold: true
-                                }
-                            }
-                            Rectangle {
-                                Layout.fillWidth: true
-                                height: 40
-                                color: "lightgray"
-                                border.color: "black"
-                                border.width: 1
-                                Text {
-                                    anchors.centerIn: parent
-                                    text: "Количество"
-                                    font.bold: true
-                                }
-                            }
-                        }//GridLayout
+                                       TableModelColumn { display: "Штрихкод" }
+                                       TableModelColumn { display: "Количество" }
 
-                        // Таблица
-                        ListView {
-                            Layout.fillWidth: true
-                            Layout.fillHeight: true
-                            model: barcodesModel
-                            delegate: RowLayout {
-                                spacing: 10 // Пространство между колонками
-                                Layout.fillWidth: true
-                                Layout.fillHeight: true
-                                Layout.alignment: Qt.AlignRight // Выравниваем по правому краю
-                                Rectangle {
-                                    Layout.fillWidth: true
-                                    height: 40
-                                    border.color: "black"
-                                    border.width: 1
-                                    Text {
-                                        //anchors.centerIn: parent
-                                        text: model.barcode
-                                    }
-                                }
+                                       delegate: Item {
+                                           width: 400
+                                           height: 40
+                                           RowLayout {
+                                               Rectangle {
+                                                   width: 250
+                                                   height: 40
+                                                   border.color: "black"
+                                                   border.width: 1
+                                                   Text {
+                                                       anchors.centerIn: parent
+                                                       text: model.barcode
+                                                   }
+                                               }
+                                               Rectangle {
+                                                   width: 150
+                                                   height: 40
+                                                   border.color: "black"
+                                                   border.width: 1
+                                                   Text {
+                                                       anchors.centerIn: parent
+                                                       text: model.quantity
+                                                   }
+                                               }
+                                           }
+                                       }
+                                   }
 
-                                Rectangle {
-                                    Layout.alignment: Qt.AlignRight // Выравниваем по правому краю
-                                    Layout.preferredWidth: 100  // Устанавливаем фиксированную ширину для колонки "Количество"
-                                    height: 40
-                                    border.color: "black"
-                                    border.width: 1
-                                    Text {
-                                        anchors.centerIn: parent
-                                        text: model.quantity
-                                    }
-                                }
-                            }
-                        }
-
-
-
-                        }//ColumnLayout
-                    Button {
-                        text: "Добавить штрихкод"
-                        //Layout.alignment: Qt.AlignHCenter
-                        scale: 2
-                        anchors.centerIn: parent
-                        onClicked: {
-                            barcodesModel.append({"barcode": "0000000000000", "quantity": 1})
-                        }
-                    }
+                                   Button {
+                                       text: "Добавить штрихкод"
+                                       Layout.alignment: Qt.AlignHCenter
+                                       onClicked: {
+                                           barcodesModel.append({"barcode": "0000000000000", "quantity": 1})
+                                       }
+                                   }
+                               }
 
                 // ListView {
                 //     width: parent.width
@@ -203,23 +204,28 @@ ApplicationWindow {
             id: thirdPage
             Page {
                 Label {
-                    id: responseText
+                   // id: responseText
                     text: "Настройки программы"
                     anchors.horizontalCenter:  parent.horizontalCenter
                     font.pixelSize: 32
                 }
 
+                Label {
+                    scale: 2
+                   id: responseText
+                    text: "ответ"
+                    anchors.horizontalCenter:  parent.horizontalCenter
+                    anchors.verticalCenter: parent.verticalCenter
+                    font.pixelSize: 32
+                }
 
-                Column {
-                       anchors.fill: parent
-                       // TextArea {
-                       //     id: responseText
-                       //     width: parent.width * 0.5
-                       //     height: parent.height * 0.5
-                       //     readOnly: true
-                       //     text: "ababababdbsdbasd"
-                       // }
+
+
+
+
                        Button {
+                           anchors.topMargin: parent.top + 30
+                           anchors.horizontalCenter: parent.horizontalCenter
                                    text: "Make POST Request"
                                    scale: 1.5
                                    onClicked: {
@@ -229,10 +235,21 @@ ApplicationWindow {
                                                   data[item.barcode] = item.quantity;
                                               }
                                        //httpClient.makeGetRequest("http://192.168.1.138//Bot/ru_RU/hs/bots/ping")
-                                       httpClient.makePostRequest("http://192.168.1.138//Bot/ru_RU/hs/bots/test", data)
+                                       httpClient.makePostRequest("http://192.168.1.136/Ihttp/ru_RU/hs/Request/docum", data)
                                    }
                                }
-                   }
+
+                // TextArea {
+                //     id: responseText
+                //     anchors.bottom: parent.bottom
+                //     anchors.horizontalCenter: parent.horizontalCenter
+                //     width: parent.width
+                //     height: parent.height * 0.5
+                //     scale: 1.5
+                //     font.pixelSize: 40
+                //     //readOnly: true
+                //     text: "ababababdbsdbasd"
+                // }
 
                 Connections {
                        target: httpClient
