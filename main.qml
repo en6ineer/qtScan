@@ -19,10 +19,10 @@ ApplicationWindow {
     //             { "barcode": "9876543210987", "quantity": 200 }
     //         ]
     //     }
-    property var barcodesModel: ListModel {
-                ListElement { barcode: "1234567890123"; quantity: 1 }
-                ListElement { barcode: "9876543210987"; quantity: 200 }
-            }
+    // property var barcodesModel: ListModel {
+    //             ListElement { barcode: "1234567890123"; quantity: 1 }
+    //             ListElement { barcode: "9876543210987"; quantity: 200 }
+    //         }
 
     StackView {
         id: stackView
@@ -87,6 +87,7 @@ ApplicationWindow {
             id: secondPage
             Page {
                 Label {
+                    id: workTable
                     text: "Рабочий стол"
                     anchors.horizontalCenter:  parent.horizontalCenter
                     font.pixelSize: 32
@@ -100,91 +101,133 @@ ApplicationWindow {
                 //6) Такой же диалог для изменения штрихкода в таблице
                 //7) Кнопка отправить в 1С
 
-                ColumnLayout {
+                TextField {
+
+                    id: field
+                    y: 200
+                    //anchors.topMargin: 100
+                    anchors.horizontalCenter:  parent.horizontalCenter
+                    placeholderText: "Поле ввода:"
+                    height: 100
+                    width: parent.width - 2
+                    font.pixelSize: 40//36
+                    text: "123129412421"
+                }
+
+                Rectangle {
+                        width: parent.width
+                        height: parent.height * 0.7
+                        color: "transparent"
+                        border.color: "black"
+                        border.width: 2
+                        anchors.centerIn: parent
+                        //anchors.topMargin: 10
+
+                        TableModel{
+                             id: userTable
+                             TableModelColumn { display: "barcode"}
+                             TableModelColumn { display: "quantity" }
+
+                             rows:[
+                                 {barcode: "1234567890123", quantity: 1},
+                                 {barcode: "9876543210987", quantity: 43},
+                                 {barcode: "ABCDE#12141241", quantity: 28}
+                             ]
+
+
+                         }
+
+                        // Горизонтальный заголовок
+                               HorizontalHeaderView {
+                                   id: horizontalHeader
+                                   anchors.left: tableView.left
+                                   anchors.right: tableView.right
+                                   anchors.top: parent.top
+                                   syncView: tableView
+                                   model: ["Штрихкод", "Количество"]
+                                   delegate: Rectangle {
+                                       width: tableView.columnWidths[index]
+                                       height: 40
+                                       implicitHeight: 40
+                                        implicitWidth: 80
+                                       color: "lightgray"
+                                       border.color: "black"
+                                       border.width: 1
+
+                                       Text {
+                                           anchors.centerIn: parent
+                                           text: modelData
+                                           font.bold: true
+                                       }
+                                   }
+                               }
+
+                               // Вертикальный заголовок
+                               VerticalHeaderView {
+                                   id: verticalHeader
+                                   anchors.top: tableView.top
+                                   anchors.bottom: tableView.bottom
+                                   anchors.left: parent.left
+                                   anchors.leftMargin: 10
+                                   syncView: tableView
+                               }
+
+                               // Основная таблица
+                               TableView {
+                                   id: tableView
                                    anchors.fill: parent
-                                   spacing: 10
+                                   anchors.topMargin: 60  // Чтобы не перекрывать заголовок
+                                   model: userTable
+                                   rowSpacing: 10
+                                   columnSpacing: 20
 
-                                   // Заголовок таблицы
-                                   RowLayout {
-                                       Layout.fillWidth: true
-                                       spacing: 1
-                                       Rectangle {
-                                           Layout.fillWidth: true
-                                           height: 40
-                                           color: "lightgray"
-                                           border.color: "black"
-                                           border.width: 1
-                                           Text {
-                                               anchors.centerIn: parent
-                                               text: "Штрихкод"
-                                               font.bold: true
-                                           }
-                                       }
-                                       Rectangle {
-                                           Layout.fillWidth: true
-                                           height: 40
-                                           color: "lightgray"
-                                           border.color: "black"
-                                           border.width: 1
-                                           Text {
-                                               anchors.centerIn: parent
-                                               text: "Количество"
-                                               font.bold: true
-                                           }
+                                   selectionModel: ItemSelectionModel {}
+
+                                   delegate: Rectangle {
+                                       anchors.leftMargin: verticalHeader + 30
+
+                                       implicitHeight: 50
+                                       implicitWidth: 400 // От этого кажется зависит ширина колонок.
+                                       color: row == tableView.currentRow ? "lightgray" : "white"
+                                       border.color: "black"
+                                       border.width: 1
+
+                                       Text {
+                                           anchors.centerIn: parent
+                                           text: display
                                        }
                                    }
 
-                                   // Таблица
-                                   TableView {
-                                       Layout.fillWidth: true
-                                       Layout.fillHeight: true
-                                       columnSpacing: 1
-                                       rowSpacing: 1
-                                       model: barcodesModel
+                                   property var columnWidths: [200, 100]  // Устанавливаем начальную ширину колонок
 
-                                       TableModelColumn { display: "Штрихкод" }
-                                       TableModelColumn { display: "Количество" }
-
-                                       delegate: Item {
-                                           width: 400
-                                           height: 40
-                                           implicitHeight: 40
-                                           implicitWidth: 400
-                                           RowLayout {
-                                               Rectangle {
-                                                   width: 250
-                                                   height: 40
-                                                   border.color: "black"
-                                                   border.width: 1
-                                                   Text {
-                                                       anchors.centerIn: parent
-                                                       text: model.barcode
-                                                   }
-                                               }
-                                               Rectangle {
-                                                   width: 150
-                                                   height: 40
-                                                   border.color: "black"
-                                                   border.width: 1
-                                                   Text {
-                                                       anchors.centerIn: parent
-                                                       text: model.quantity
-                                                   }
-                                               }
-                                           }
-                                       }
+                                   columnWidthProvider: function(column) {
+                                       const implicitWidth = implicitColumnWidth(column)
+                                       if (implicitWidth > columnWidths[column]) return implicitWidth
+                                       return columnWidths[column]
                                    }
+                               }//tablview
 
-                               }//columnlayout
+                    }//rectangle
+
 
                 Button {
                     text: "Добавить штрихкод"
-                    //Layout.alignment: Qt.AlignHCenter
-                    anchors.centerIn: parent.Center
+                    scale: 3
+                   // anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: parent.height * 0.1
                     onClicked: {
-                        barcodesModel.append({"barcode": "0000000000000", "quantity": 1})
+                       addRow(field.text, 1)
                     }
                 }
+
+                function addRow(barcode, quantity) {
+                        userTable.appendRow({
+                            barcode: barcode,
+                            quantity: quantity
+                        })
+                    }
 
             }//page
         }//component
