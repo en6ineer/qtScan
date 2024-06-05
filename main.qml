@@ -100,19 +100,24 @@ ApplicationWindow {
                 //5) Событие для изменения количества в таблице, вызов диалога
                 //6) Такой же диалог для изменения штрихкода в таблице
                 //7) Кнопка отправить в 1С
+                //8) Проверить с изменением высоты квадрата если штрихкод сильно большой.
+
 
                 TextField {
 
                     id: field
-                    y: 200
-                    //anchors.topMargin: 100
+                    y: 200 // Размещение надо будет выбрать
                     anchors.horizontalCenter:  parent.horizontalCenter
                     placeholderText: "Поле ввода:"
-                    height: 100
+                    height: 100 // И размер поля подредактировать под parent.height * 0.1
                     width: parent.width - 2
                     font.pixelSize: 40//36
                     text: "123129412421"
+
+                    // Здесь просто событие дописываешь по завершению редактирования
                 }
+
+
 
                 Rectangle {
                         width: parent.width
@@ -137,30 +142,67 @@ ApplicationWindow {
 
                          }
 
-                        // Горизонтальный заголовок
-                               HorizontalHeaderView {
-                                   id: horizontalHeader
-                                   anchors.left: tableView.left
-                                   anchors.right: tableView.right
-                                   anchors.top: parent.top
-                                   syncView: tableView
-                                   model: ["Штрихкод", "Количество"]
-                                   delegate: Rectangle {
-                                       width: tableView.columnWidths[index]
-                                       height: 40
-                                       implicitHeight: 40
-                                        implicitWidth: 80
-                                       color: "lightgray"
-                                       border.color: "black"
-                                       border.width: 1
 
-                                       Text {
-                                           anchors.centerIn: parent
-                                           text: modelData
-                                           font.bold: true
-                                       }
-                                   }
-                               }
+                        // Горизонтальный заголовок
+                                Row {
+                                    width: parent.width
+                                    height: 40
+                                    anchors.top: parent.top
+                                    spacing: 5
+
+                                    Rectangle {
+                                        width: parent.width * 0.5
+                                        height: parent.height
+                                        color: "lightgray"
+                                        border.color: "black"
+                                        border.width: 1
+
+                                        Text {
+                                            anchors.centerIn: parent
+                                            text: "Штрихкод"
+                                            font.bold: true
+                                        }
+                                    }
+
+                                    Rectangle {
+                                        width: parent.width * 0.5
+                                        height: parent.height
+                                        color: "lightgray"
+                                        border.color: "black"
+                                        border.width: 1
+
+                                        Text {
+                                            anchors.centerIn: parent
+                                            text: "Количество"
+                                            font.bold: true
+                                        }
+                                    }
+                                }
+
+                        // // Горизонтальный заголовок
+                        //        HorizontalHeaderView {
+                        //            id: horizontalHeader
+                        //            anchors.left: tableView.left
+                        //            anchors.right: tableView.right
+                        //            anchors.top: parent.top
+                        //            syncView: tableView
+                        //            model: ["Штрихкод", "Количество"]
+                        //            delegate: Rectangle {
+                        //                width: tableView.columnWidths[index]
+                        //                height: 40
+                        //                implicitHeight: 40
+                        //                 implicitWidth: parent.width * 0.5 //80
+                        //                color: "lightgray"
+                        //                border.color: "black"
+                        //                border.width: 1
+
+                        //                Text {
+                        //                    anchors.centerIn: parent
+                        //                    text: modelData
+                        //                    font.bold: true
+                        //                }
+                        //            }
+                        //        }
 
                                // Вертикальный заголовок
                                VerticalHeaderView {
@@ -183,11 +225,12 @@ ApplicationWindow {
 
                                    selectionModel: ItemSelectionModel {}
 
+
                                    delegate: Rectangle {
-                                       anchors.leftMargin: verticalHeader + 30
+                                       anchors.leftMargin: verticalHeader.right + 30
 
                                        implicitHeight: 50
-                                       implicitWidth: 400 // От этого кажется зависит ширина колонок.
+                                       implicitWidth: parent.width * 0.5  //400 // От этого кажется зависит ширина колонок.
                                        color: row == tableView.currentRow ? "lightgray" : "white"
                                        border.color: "black"
                                        border.width: 1
@@ -198,16 +241,69 @@ ApplicationWindow {
                                        }
                                    }
 
-                                   property var columnWidths: [200, 100]  // Устанавливаем начальную ширину колонок
+                                    property var columnWidths: [parent.width * 0.5, 250]  // Устанавливаем начальную ширину колонок
 
                                    columnWidthProvider: function(column) {
-                                       const implicitWidth = implicitColumnWidth(column)
-                                       if (implicitWidth > columnWidths[column]) return implicitWidth
+                                       // const implicitWidth = implicitColumnWidth(column)
+                                       // if (implicitWidth > columnWidths[column]) return implicitWidth
                                        return columnWidths[column]
                                    }
+
+
+
+                                   MouseArea {
+                                                      anchors.fill: parent
+                                                      onDoubleClicked: {
+                                                          // editBarcode = model.barcode
+                                                          // editQuantity = model.quantity
+                                                          // editRowIndex = row
+                                                          editDialog.open()
+                                                      }
+                                                  }
+
                                }//tablview
 
                     }//rectangle
+
+
+
+                property string editBarcode: ""
+                   property int editQuantity: 0
+                   property int editRowIndex: -1
+
+                   Dialog {
+                       id: editDialog
+                       anchors.centerIn: parent
+                       title: "Редактировать строку"
+                       standardButtons: Dialog.Ok | Dialog.Cancel
+
+                       Column {
+                           spacing: 10
+                           Label {
+                               text: "Штрихкод"
+                           }
+                           TextField {
+                               id: barcodeField
+                               text: editBarcode
+                           }
+                           Label {
+                               text: "Количество"
+                           }
+                           TextField {
+                               id: quantityField
+                               text: editQuantity.toString()
+                               validator: IntValidator { bottom: 0 }
+                           }
+                       }
+
+                       onAccepted: {
+                           if (editRowIndex >= 0) {
+                               userTable.set(editRowIndex, "barcode", barcodeField.text)
+                               userTable.set(editRowIndex, "quantity", parseInt(quantityField.text))
+                           }
+                       }
+                   }
+
 
 
                 Button {
@@ -229,68 +325,140 @@ ApplicationWindow {
                         })
                     }
 
+                // Здесь на странице надо будет сделать событие установки курсора в поле ввода
+
             }//page
         }//component
 
         Component {
             id: thirdPage
             Page {
-                Label {
-                   // id: responseText
-                    text: "Настройки программы"
-                    anchors.horizontalCenter:  parent.horizontalCenter
-                    font.pixelSize: 32
-                }
-                //Необходимо сделать:
-                //1) Поля url
-                //2) Поля с логином паролем
-                //3) Поле для лицензионного ключа
-                //4) Проверку на этот ключ
-                //5) Возможность записи системных настроек в бин файл на устройстве, и его чтение при запуске
-                //6) Лог окно для отладки ошибок.
 
-                Label {
-                    scale: 2
-                   id: responseText
-                    text: "ответ"
-                    anchors.horizontalCenter:  parent.horizontalCenter
-                    anchors.verticalCenter: parent.verticalCenter
-                    font.pixelSize: 32
-                }
-                       Button {
-                           anchors.topMargin: parent.top + 30
-                           anchors.horizontalCenter: parent.horizontalCenter
-                                   text: "Make POST Request"
-                                   scale: 1.5
-                                   onClicked: {
-                                       var data = {};
-                                              for (var i = 0; i < barcodesModel.count; i++) {
-                                                  var item = barcodesModel.get(i);
-                                                  data[item.barcode] = item.quantity;
-                                              }
-                                       //httpClient.makeGetRequest("http://192.168.1.138//Bot/ru_RU/hs/bots/ping")
-                                       httpClient.makePostRequest("http://192.168.1.136/Ihttp/ru_RU/hs/Request/docum", data)
-                                   }
-                               }
+                ColumnLayout {
+                           anchors.fill: parent
+                           anchors.margins: 20
 
-                // TextArea {
-                //     id: responseText
-                //     anchors.bottom: parent.bottom
-                //     anchors.horizontalCenter: parent.horizontalCenter
-                //     width: parent.width
-                //     height: parent.height * 0.5
-                //     scale: 1.5
-                //     font.pixelSize: 40
-                //     //readOnly: true
-                //     text: "ababababdbsdbasd"
-                // }
+                           Label {
+                               text: "Настройки программы"
+                               font.pixelSize: 32
+                               Layout.alignment: Qt.AlignHCenter
+                           }
 
-                Connections {
-                       target: httpClient
-                       function onRequestFinished(response) {
-                           responseText.text = response;
+                           TextField {
+                               id: urlField
+                               placeholderText: "URL"
+                               Layout.fillWidth: true
+                               text: "http://192.168.1.136/Ihttp/ru_RU/hs/Request/docum"
+                           }
+
+                           TextField {
+                               id: loginField
+                               placeholderText: "Логин"
+                               Layout.fillWidth: true
+                               text: "Bot"
+                           }
+
+                           TextField {
+                               id: passwordField
+                               placeholderText: "Пароль"
+                               echoMode: TextInput.Password
+                               Layout.fillWidth: true
+                               text: "12345"
+                           }
+
+                           TextField {
+                               id: licenseKeyField
+                               placeholderText: "Лицензионный ключ"
+                               Layout.fillWidth: true
+                           }
+
+                           Button {
+                               text: "Make POST Request"
+                               Layout.alignment: Qt.AlignHCenter
+                               // onClicked: {
+                               //     httpClient.makePostRequest(urlField.text, data);
+                               // }
+                           }
+
+                           TextArea {
+                               id: responseText
+                               Layout.fillWidth: true
+                               Layout.fillHeight: true
+                               readOnly: true
+                               placeholderText: "Ответ сервера будет здесь"
+                               wrapMode: TextEdit.Wrap
+                           }
                        }
-                   }
+
+                       Connections {
+                           target: httpClient
+                           function onRequestFinished(response) {
+                               responseText.text = response;
+                           }
+                       }
+
+
+
+
+                // Label {
+                //    // id: responseText
+                //     text: "Настройки программы"
+                //     anchors.horizontalCenter:  parent.horizontalCenter
+                //     font.pixelSize: 32
+                // }
+                // //Необходимо сделать:
+                // //1) Поля url
+                // //2) Поля с логином паролем
+                // //3) Поле для лицензионного ключа
+                // //4) Проверку на этот ключ
+                // //5) Возможность записи системных настроек в бин файл на устройстве, и его чтение при запуске
+                // //6) Лог окно для отладки ошибок.
+
+                // Label {
+                //     scale: 2
+                //    id: responseText
+                //     text: "ответ"
+                //     anchors.horizontalCenter:  parent.horizontalCenter
+                //     anchors.verticalCenter: parent.verticalCenter
+                //     font.pixelSize: 32
+                // }
+                //        Button {
+                //            anchors.topMargin: parent.top + 30
+                //            anchors.horizontalCenter: parent.horizontalCenter
+                //                    text: "Make POST Request"
+                //                    scale: 1.5
+                //                    onClicked: {
+                //                        // Переписать под userTable.rows
+                //                        // Ещё лучше сделать чтобы строки сразу в фиксированной структуре хранились
+                //                        // Типа вводишь одиннаковый штрихкод, его количество увеличивается на 1 штуку
+                //                        var data = {};
+                //                               for (var i = 0; i < barcodesModel.count; i++) {
+                //                                   var item = barcodesModel.get(i);
+                //                                   data[item.barcode] = item.quantity;
+                //                               }
+                //                        //httpClient.makeGetRequest("http://192.168.1.138//Bot/ru_RU/hs/bots/ping")
+                //                        httpClient.makePostRequest("http://192.168.1.136/Ihttp/ru_RU/hs/Request/docum", data)
+                //                    }
+                //                }
+
+                // // TextArea {
+                // //     id: responseText
+                // //     anchors.bottom: parent.bottom
+                // //     anchors.horizontalCenter: parent.horizontalCenter
+                // //     width: parent.width
+                // //     height: parent.height * 0.5
+                // //     scale: 1.5
+                // //     font.pixelSize: 40
+                // //     //readOnly: true
+                // //     text: "ababababdbsdbasd"
+                // // }
+
+                // Connections {
+                //        target: httpClient
+                //        function onRequestFinished(response) {
+                //            responseText.text = response;
+                //        }
+                //    }
 
             }
         }
