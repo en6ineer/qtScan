@@ -1,42 +1,44 @@
 #ifndef BARCODESDATA_H
 #define BARCODESDATA_H
 
-#include <QAbstractListModel>
+#include <QAbstractTableModel>
+#include <QString>
 #include <QVector>
 
-// Структура для хранения данных одной строки таблицы
+// Структура для хранения данных штрихкода и количества
 struct BarcodeItem {
     QString barcode;
     int quantity;
 };
 
-// Модель данных для хранения и управления списком штрихкодов
-class BarcodesData : public QAbstractListModel
+class BarcodesData : public QAbstractTableModel
 {
     Q_OBJECT
+
 public:
     explicit BarcodesData(QObject *parent = nullptr);
 
-    // Количество строк в модели
+    // Переопределение методов из QAbstractTableModel
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-
-    // Данные для определенной строки и роли
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-
-    // Имена ролей для данных
-    QHash<int, QByteArray> roleNames() const override;
-
-    // Метод для добавления строки
-    Q_INVOKABLE void addRow(const QString &barcode, int quantity);
-
-    // Метод для удаления строки по индексу
-    Q_INVOKABLE void removeRow(int index);
-
-    // Метод для очистки всех данных
-    Q_INVOKABLE void clear();
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+   Q_INVOKABLE QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+    // Методы для управления данными
+   Q_INVOKABLE void addRow(const QString &barcode, int quantity);
+   Q_INVOKABLE void removeRow(int row);
+    Q_INVOKABLE  QVariant get(int row, int column) const;
+   Q_INVOKABLE void set(int row, int column, const QVariant &value);
+    QHash<int, QByteArray> roleNames() const override; // Метод для определения ролей данных
 
 private:
-    QVector<BarcodeItem> m_data;  // Вектор для хранения данных всех строк
+    QVector<BarcodeItem> m_data;
+
+    // Определение ролей
+    enum BarcodeRoles {
+        BarcodeRole = Qt::UserRole + 1,
+        QuantityRole
+    };
+
 };
 
 #endif // BARCODESDATA_H
