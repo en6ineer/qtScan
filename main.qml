@@ -38,7 +38,7 @@ ApplicationWindow {
                     id: labelMainPage
                     text: "Главная страница"
                     font.bold: true
-                    font.pixelSize: 48//36
+                    font.pixelSize: 36//48
                     anchors.horizontalCenter: parent.horizontalCenter
                 }
 
@@ -56,7 +56,7 @@ ApplicationWindow {
                         Layout.alignment: Qt.AlignHCenter
                         Layout.preferredWidth: parent.width * 0.8
                         Layout.preferredHeight: 60
-                        font.pixelSize: 40//36
+                        font.pixelSize: 36//40
                     }
 
                     TextField {
@@ -65,7 +65,7 @@ ApplicationWindow {
                         Layout.alignment: Qt.AlignHCenter
                         Layout.preferredWidth: parent.width * 0.8
                         Layout.preferredHeight: 60
-                        font.pixelSize: 40//36
+                        font.pixelSize: 36//40
                         echoMode: TextInput.Password
                     }
 
@@ -73,7 +73,7 @@ ApplicationWindow {
                     Button {
                         id: authButton
                         text: "Авторизация"
-                        font.pixelSize: 48//36
+                        font.pixelSize: 36//48
                         Layout.alignment: Qt.AlignHCenter
                         //Layout.topMargin: passField.bottom
                         Layout.preferredWidth: parent.width * 0.6
@@ -106,12 +106,12 @@ ApplicationWindow {
                 TextField {
 
                     id: field
-                    y: 200 // Размещение надо будет выбрать
+                    y: 30//200 // Размещение надо будет выбрать
                     anchors.horizontalCenter:  parent.horizontalCenter
                     placeholderText: "Поле ввода:"
-                    height: 100 // И размер поля подредактировать под parent.height * 0.1
+                    height: parent.height * 0.1 //100 // И размер поля подредактировать под parent.height * 0.1
                     width: parent.width - 2
-                    font.pixelSize: 40//36
+                    font.pixelSize: 36//40
                     text: "123129412421"
 
                     // Здесь просто событие дописываешь по завершению редактирования
@@ -128,56 +128,113 @@ ApplicationWindow {
                         anchors.centerIn: parent
                         //anchors.topMargin: 10
 
-                        TableModel{
-                             id: userTable
-                             TableModelColumn { display: "barcode"}
-                             TableModelColumn { display: "quantity" }
 
-                             rows:[
-                                 {barcode: "1234567890123", quantity: 1},
-                                 {barcode: "9876543210987", quantity: 43},
-                                 {barcode: "ABCDE#12141241", quantity: 28}
-                             ]
+                        //test
+
+                        TableView {
+                                   id: tableView
+                                   anchors.fill: parent
+                                   model: barcodesData  // Устанавливаем модель данных
+                                   columnSpacing: 20
+                                   rowSpacing: 10
+
+                                   // Определяем заголовки колонок
+                                   TableViewColumn {
+                                       role: "barcode"
+                                       title: "Штрихкод"
+                                       width: parent.width * 0.5
+                                   }
+
+                                   TableViewColumn {
+                                       role: "quantity"
+                                       title: "Количество"
+                                       width: 80
+                                   }
+
+                                   delegate: Rectangle {
+                                       height: 50
+                                       border.color: "black"
+                                       border.width: 1
+                                       color: model.row % 2 == 0 ? "lightgray" : "white"
+
+                                       Row {
+                                           spacing: 10
+                                           Text {
+                                               text: model.barcode
+                                               width: tableView.columns[0].width
+                                           }
+                                           Text {
+                                               text: model.quantity
+                                               width: tableView.columns[1].width
+                                           }
+                                       }
+                                   }
+
+                                   // Добавление MouseArea для двойного клика
+                                   MouseArea {
+                                       anchors.fill: parent
+                                       onDoubleClicked: {
+                                           // Обработка двойного клика
+                                           editBarcode = model.barcode
+                                           editQuantity = model.quantity
+                                           editRowIndex = tableView.selectionModel.currentIndex.row
+                                           editDialog.open()
+                                       }
+                                   }
+                               }
+
+                        //test
 
 
-                         }
+
+                        // TableModel{
+                        //      id: userTable
+                        //      TableModelColumn { display: "barcode"}
+                        //      TableModelColumn { display: "quantity" }
+
+                        //      rows:[
+                        //          {barcode: "1234567890123", quantity: 1},
+                        //          {barcode: "9876543210987", quantity: 43},
+                        //          {barcode: "ABCDE#12141241", quantity: 28}
+                        //      ]
+                        //  }
 
 
-                        // Горизонтальный заголовок
-                                Row {
-                                    width: parent.width
-                                    height: 40
-                                    anchors.top: parent.top
-                                    spacing: 5
+                        // // Горизонтальный заголовок
+                        //         Row {
+                        //             width: parent.width
+                        //             height: 40
+                        //             anchors.top: parent.top
+                        //             spacing: 5
 
-                                    Rectangle {
-                                        width: parent.width * 0.5
-                                        height: parent.height
-                                        color: "lightgray"
-                                        border.color: "black"
-                                        border.width: 1
+                        //             Rectangle {
+                        //                 width: parent.width * 0.5
+                        //                 height: parent.height
+                        //                 color: "lightgray"
+                        //                 border.color: "black"
+                        //                 border.width: 1
 
-                                        Text {
-                                            anchors.centerIn: parent
-                                            text: "Штрихкод"
-                                            font.bold: true
-                                        }
-                                    }
+                        //                 Text {
+                        //                     anchors.centerIn: parent
+                        //                     text: "Штрихкод"
+                        //                     font.bold: true
+                        //                 }
+                        //             }
 
-                                    Rectangle {
-                                        width: parent.width * 0.5
-                                        height: parent.height
-                                        color: "lightgray"
-                                        border.color: "black"
-                                        border.width: 1
+                        //             Rectangle {
+                        //                 width: parent.width * 0.5
+                        //                 height: parent.height
+                        //                 color: "lightgray"
+                        //                 border.color: "black"
+                        //                 border.width: 1
 
-                                        Text {
-                                            anchors.centerIn: parent
-                                            text: "Количество"
-                                            font.bold: true
-                                        }
-                                    }
-                                }
+                        //                 Text {
+                        //                     anchors.centerIn: parent
+                        //                     text: "Количество"
+                        //                     font.bold: true
+                        //                 }
+                        //             }
+                        //         }
 
                         // // Горизонтальный заголовок
                         //        HorizontalHeaderView {
@@ -204,126 +261,174 @@ ApplicationWindow {
                         //            }
                         //        }
 
-                               // Вертикальный заголовок
-                               VerticalHeaderView {
-                                   id: verticalHeader
-                                   anchors.top: tableView.top
-                                   anchors.bottom: tableView.bottom
-                                   anchors.left: parent.left
-                                   anchors.leftMargin: 10
-                                   syncView: tableView
-                               }
+                               // // Вертикальный заголовок
+                               // VerticalHeaderView {
+                               //     id: verticalHeader
+                               //     anchors.top: tableView.top
+                               //     anchors.bottom: tableView.bottom
+                               //     anchors.left: parent.left
+                               //     anchors.leftMargin: 10
+                               //     syncView: tableView
+                               // }
 
-                               // Основная таблица
-                               TableView {
-                                   id: tableView
-                                   anchors.fill: parent
-                                   anchors.topMargin: 60  // Чтобы не перекрывать заголовок
-                                   model: userTable
-                                   rowSpacing: 10
-                                   columnSpacing: 20
+                               // // Основная таблица
+                               // TableView {
+                               //     id: tableView
+                               //     anchors.fill: parent
+                               //     anchors.topMargin: 60  // Чтобы не перекрывать заголовок
+                               //     model: userTable
+                               //     rowSpacing: 10
+                               //     columnSpacing: 20
 
-                                   selectionModel: ItemSelectionModel {}
-
-
-                                   delegate: Rectangle {
-                                       anchors.leftMargin: verticalHeader.right + 30
-
-                                       implicitHeight: 50
-                                       implicitWidth: parent.width * 0.5  //400 // От этого кажется зависит ширина колонок.
-                                       color: row == tableView.currentRow ? "lightgray" : "white"
-                                       border.color: "black"
-                                       border.width: 1
-
-                                       Text {
-                                           anchors.centerIn: parent
-                                           text: display
-                                       }
-                                   }
-
-                                    property var columnWidths: [parent.width * 0.5, 250]  // Устанавливаем начальную ширину колонок
-
-                                   columnWidthProvider: function(column) {
-                                       // const implicitWidth = implicitColumnWidth(column)
-                                       // if (implicitWidth > columnWidths[column]) return implicitWidth
-                                       return columnWidths[column]
-                                   }
+                               //     selectionModel: ItemSelectionModel {}
 
 
+                               //     delegate: Rectangle {
+                               //         anchors.leftMargin: verticalHeader.right + 30
 
-                                   MouseArea {
-                                                      anchors.fill: parent
-                                                      onDoubleClicked: {
-                                                          // editBarcode = model.barcode
-                                                          // editQuantity = model.quantity
-                                                          // editRowIndex = row
-                                                          editDialog.open()
-                                                      }
-                                                  }
+                               //         implicitHeight: 50
+                               //         implicitWidth: parent.width * 0.5  //400 // От этого кажется зависит ширина колонок.
+                               //         color: row == tableView.currentRow ? "lightgray" : "white"
+                               //         border.color: "black"
+                               //         border.width: 1
 
-                               }//tablview
+                               //         Text {
+                               //             anchors.centerIn: parent
+                               //             text: display
+                               //         }
+                               //     }
+
+                               //      property var columnWidths: [parent.width * 0.5, parent.width * 0.25]  // Устанавливаем начальную ширину колонок
+
+                               //     columnWidthProvider: function(column) {
+                               //         // const implicitWidth = implicitColumnWidth(column)
+                               //         // if (implicitWidth > columnWidths[column]) return implicitWidth
+                               //         return columnWidths[column]
+                               //     }
+
+
+
+                               //     MouseArea {
+                               //                        anchors.fill: parent
+                               //                        onDoubleClicked: {
+                               //                            // editBarcode = model.barcode
+                               //                            // editQuantity = model.quantity
+                               //                            // editRowIndex = row
+                               //                            editDialog.open()
+                               //                        }
+                               //                    }
+
+                               // }//tablview
 
                     }//rectangle
 
 
-
-                property string editBarcode: ""
-                   property int editQuantity: 0
-                   property int editRowIndex: -1
-
-                   Dialog {
-                       id: editDialog
-                       anchors.centerIn: parent
-                       title: "Редактировать строку"
-                       standardButtons: Dialog.Ok | Dialog.Cancel
-
-                       Column {
-                           spacing: 10
-                           Label {
-                               text: "Штрихкод"
-                           }
-                           TextField {
-                               id: barcodeField
-                               text: editBarcode
-                           }
-                           Label {
-                               text: "Количество"
-                           }
-                           TextField {
-                               id: quantityField
-                               text: editQuantity.toString()
-                               validator: IntValidator { bottom: 0 }
-                           }
-                       }
-
-                       onAccepted: {
-                           if (editRowIndex >= 0) {
-                               userTable.set(editRowIndex, "barcode", barcodeField.text)
-                               userTable.set(editRowIndex, "quantity", parseInt(quantityField.text))
-                           }
-                       }
-                   }
-
-
-
+                //test
                 Button {
-                    text: "Добавить штрихкод"
-                    scale: 3
-                   // anchors.centerIn: parent
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.bottom: parent.bottom
-                    anchors.bottomMargin: parent.height * 0.1
-                    onClicked: {
-                       addRow(field.text, 1)
-                    }
-                }
+                      text: "Добавить штрихкод"
+                      anchors.bottom: parent.bottom
+                      onClicked: {
+                          barcodesData.addRow("Новый штрихкод", 1)
+                      }
+                  }
 
-                function addRow(barcode, quantity) {
-                        userTable.appendRow({
-                            barcode: barcode,
-                            quantity: quantity
-                        })
-                    }
+                  property string editBarcode: ""
+                  property int editQuantity: 0
+                  property int editRowIndex: -1
+
+                  Dialog {
+                      id: editDialog
+                      title: "Редактировать строку"
+                      standardButtons: Dialog.Ok | Dialog.Cancel
+
+                      Column {
+                          spacing: 10
+                          Label {
+                              text: "Штрихкод"
+                          }
+                          TextField {
+                              id: barcodeField
+                              text: editBarcode
+                          }
+                          Label {
+                              text: "Количество"
+                          }
+                          TextField {
+                              id: quantityField
+                              text: editQuantity.toString()
+                              validator: IntValidator { bottom: 0 }
+                          }
+                      }
+
+                      onAccepted: {
+                          if (editRowIndex >= 0) {
+                              barcodesData.removeRow(editRowIndex)
+                              barcodesData.addRow(barcodeField.text, parseInt(quantityField.text))
+                          }
+                      }
+                  }
+
+                  //test
+
+
+
+                // property string editBarcode: ""
+                //    property int editQuantity: 0
+                //    property int editRowIndex: -1
+
+                //    Dialog {
+                //        id: editDialog
+                //        anchors.centerIn: parent
+                //        title: "Редактировать строку"
+                //        standardButtons: Dialog.Ok | Dialog.Cancel
+
+                //        Column {
+                //            spacing: 10
+                //            Label {
+                //                text: "Штрихкод"
+                //            }
+                //            TextField {
+                //                id: barcodeField
+                //                text: editBarcode
+                //            }
+                //            Label {
+                //                text: "Количество"
+                //            }
+                //            TextField {
+                //                id: quantityField
+                //                text: editQuantity.toString()
+                //                validator: IntValidator { bottom: 0 }
+                //            }
+                //        }
+
+                //        onAccepted: {
+                //            if (editRowIndex >= 0) {
+                //                userTable.set(editRowIndex, "barcode", barcodeField.text)
+                //                userTable.set(editRowIndex, "quantity", parseInt(quantityField.text))
+                //            }
+                //        }
+                //    }
+
+
+
+                // Button {
+                //     text: "Добавить штрихкод"
+                //     scale: 2//3 //build
+                //    // anchors.centerIn: parent
+                //     anchors.horizontalCenter: parent.horizontalCenter
+                //     anchors.bottom: parent.bottom
+                //     anchors.bottomMargin: parent.height * 0.1
+                //     onClicked: {
+                //        addRow(field.text, 1)
+                //     }
+                // }
+
+                // function addRow(barcode, quantity) {
+                //         userTable.appendRow({
+                //             barcode: barcode,
+                //             quantity: quantity
+                //         })
+                //     }
 
                 // Здесь на странице надо будет сделать событие установки курсора в поле ввода
 
@@ -363,7 +468,7 @@ ApplicationWindow {
                                placeholderText: "Пароль"
                                echoMode: TextInput.Password
                                Layout.fillWidth: true
-                               text: "12345"
+                               text: "1234"
                            }
 
                            TextField {
@@ -481,7 +586,7 @@ ApplicationWindow {
                 text: "Главная"
                 Layout.fillWidth: true
                 onClicked: stackView.replace(mainPage)
-                font.pixelSize: 48//24
+                font.pixelSize: 10//48//24
                 Layout.preferredWidth: parent.width * 0.30
                 Layout.preferredHeight: parent.width * 0.10
                 background: Rectangle {
@@ -497,7 +602,7 @@ ApplicationWindow {
                 text: "Документ"
                 Layout.fillWidth: true
                 onClicked: stackView.replace(secondPage)
-                font.pixelSize: 48//24
+                font.pixelSize: 10//48//24
                 Layout.preferredWidth: parent.width * 0.30
                 Layout.preferredHeight: parent.width * 0.10
                 background: Rectangle {
@@ -513,7 +618,7 @@ ApplicationWindow {
                 text: "Настройки"
                 Layout.fillWidth: true
                 onClicked: stackView.replace(thirdPage)
-                font.pixelSize: 48//24
+                font.pixelSize: 10//48//24
                 Layout.preferredWidth: parent.width * 0.30
                 Layout.preferredHeight: parent.width * 0.10
                 background: Rectangle {

@@ -16,6 +16,8 @@ endif()
 qt_add_executable(qtandrApp src/main.cpp
     src/HttpClient.h
     src/HttpClient.cpp
+    src/BarcodesData.h
+    src/BarcodesData.cpp
 
 )
 

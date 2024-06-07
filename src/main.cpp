@@ -8,6 +8,7 @@
 #include "import_qml_components_plugins.h"
 #include "import_qml_plugins.h"
 #include "HttpClient.h"
+#include "BarcodesData.h"
 
 int main(int argc, char *argv[])
 {
@@ -33,6 +34,13 @@ int main(int argc, char *argv[])
 
     HttpClient httpClient;
     engine.rootContext()->setContextProperty("httpClient", &httpClient);
+
+    // Создаем экземпляр модели данных
+    BarcodesData barcodesData;
+
+    // Регистрируем модель данных для использования в QML
+    engine.rootContext()->setContextProperty("barcodesData", &barcodesData);
+
 
     engine.addImportPath(QCoreApplication::applicationDirPath() + "/qml");
     engine.addImportPath(":/");
