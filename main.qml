@@ -79,12 +79,8 @@ ApplicationWindow {
                     font.pixelSize: 32
                 }
                 //Необходимо сделать:
-                //1) Таблицу содержащую штрихкод количество
-                //2) Привязать значение таблицы к структуре которую потом передавать на сервер
                 //3) Поле вводе для штрихкода
                 //4) Событие для всей формы чтобы курсор всегда стоял на поле ввода
-                //5) Событие для изменения количества в таблице, вызов диалога
-                //6) Такой же диалог для изменения штрихкода в таблице
                 //7) Кнопка отправить в 1С
                 //8) Проверить с изменением высоты квадрата если штрихкод сильно большой.
 
@@ -99,6 +95,15 @@ ApplicationWindow {
                     width: parent.width - 2
                     font.pixelSize: 36//40
                     text: "123129412421"
+
+                    //События по добавлению штрихкода:
+                    onTextChanged: {
+                     workTable.text = field.text
+                    }
+
+                      onEditingFinished: {
+                      field.placeholderText = "После"
+                      }
 
                     // Здесь просто событие дописываешь по завершению редактирования
                 }
@@ -116,109 +121,233 @@ ApplicationWindow {
                         //anchors.topMargin: 10
 
 
+                        //test
+
+
                         // Горизонтальный заголовок
-                                Row {
-                                    width: parent.width
-                                    height: 40
-                                    anchors.top: parent.top
-                                    spacing: 5
+                        Row {
+                            width: parent.width
+                            height: 40
+                            anchors.top: parent.top
+                            //spacing: 5
 
-                                    Rectangle {
-                                        width: parent.width * 0.5
-                                        height: parent.height
-                                        color: "lightgray"
-                                        border.color: "black"
-                                        border.width: 1
+                            Rectangle {
+                                width: parent.width * 0.5
+                                height: parent.height
+                                color: "lightgray"
+                                border.color: "black"
+                                border.width: 1
 
-                                        Text {
-                                            anchors.centerIn: parent
-                                            text: "Штрихкод"
-                                            font.bold: true
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: "Штрихкод"
+                                    font.bold: true
+                                }
+                            }
+
+                            Rectangle {
+                                width: parent.width * 0.5
+                                height: parent.height
+                                color: "lightgray"
+                                border.color: "black"
+                                border.width: 1
+
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: "Количество"
+                                    font.bold: true
+                                }
+                            }
+                        }
+
+                        // Основная часть с таблицей и вертикальным заголовком
+                        Rectangle {
+                            width: parent.width
+                            height: parent.height - 60  // Учитываем высоту горизонтального заголовка
+                            anchors.top: parent.top
+                            anchors.topMargin: 60  // Отступ сверху для горизонтального заголовка
+
+
+
+                            // Вертикальный заголовок
+                            VerticalHeaderView {
+                                id: verticalHeader
+                                anchors.top: tableView.top
+                                anchors.bottom: tableView.bottom
+                                anchors.left: parent.left
+                                anchors.leftMargin: 10
+                                syncView: tableView
+
+                                delegate: Rectangle {
+                                    width: 50  // Ширина вертикального заголовка
+                                    height: 50
+                                    implicitHeight: 50
+                                    implicitWidth: 50
+                                    border.color: "black"
+                                    border.width: 1
+                                    color: "lightgray"
+
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: model.row + 1
+                                    }
+                                }
+                            }
+
+                            // Основная таблица
+                            TableView {
+                                id: tableView
+                                anchors.fill: parent
+                                anchors.leftMargin: 80  // Учитываем ширину вертикального заголовка
+                                model: barcodesData
+                                rowSpacing: 10
+                                columnSpacing: 20
+
+                                delegate: Rectangle {
+                                    anchors.leftMargin: 100
+                                    implicitHeight: 50
+                                    implicitWidth: parent.width * 0.5
+                                    border.color: "black"
+                                    border.width: 1
+
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: {
+                                            if (column === 0) {
+                                                return model.barcode
+                                            } else if (column === 1) {
+                                                return model.quantity
+                                            }
                                         }
                                     }
 
-                                    Rectangle {
-                                        width: parent.width * 0.5
-                                        height: parent.height
-                                        color: "lightgray"
-                                        border.color: "black"
-                                        border.width: 1
-
-                                        Text {
-                                            anchors.centerIn: parent
-                                            text: "Количество"
-                                            font.bold: true
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        onDoubleClicked: {
+                                            editRowIndex = model.row
+                                            editBarcode = model.barcode
+                                            editQuantity = model.quantity
+                                            editDialog.open()
                                         }
                                     }
                                 }
 
+                                property var columnWidths: [parent.width * 0.5, parent.width * 0.25]  // Устанавливаем начальную ширину колонок
 
-                               // // Вертикальный заголовок
-                               // VerticalHeaderView {
-                               //     id: verticalHeader
-                               //     anchors.top: tableView.top
-                               //     anchors.bottom: tableView.bottom
-                               //     anchors.left: parent.left
-                               //     anchors.leftMargin: 10
-                               //     syncView: tableView
-                               // }
+                                columnWidthProvider: function(column) {
+                                    return columnWidths[column]
+                                }
+                            }
+                        }
 
-                               // Основная таблица
-                               TableView {
-                                   id: tableView
-                                   anchors.fill: parent
-                                   anchors.topMargin: 60  // Чтобы не перекрывать заголовок
-                                   model: barcodesData //userTable
-                                   rowSpacing: 10
-                                   columnSpacing: 20
-
-                                   //selectionMode: SingleSelection
+                        //test
 
 
-                                   delegate: Rectangle {
 
-                                       // anchors.leftMargin: verticalHeader.right + 30
-                                       implicitHeight: 50
-                                       implicitWidth: parent.width * 0.5  //400 // От этого кажется зависит ширина колонок.
-                                        //color: tableView.selection.contains(index) ? "lightblue" : "white"
-                                       //color: model.row === tableView.currentRow ? "lightgray" : "white"
-                                       border.color: "black"
-                                       border.width: 1
 
-                                       Text {
-                                           anchors.centerIn: parent
-                                           text:  if (column === 0) {
-                                                      model.barcode
-                                                  } else if (column === 1) {
-                                                      model.quantity
-                                                  }
-                                       }
+                        // // Горизонтальный заголовок
+                        //         Row {
+                        //             width: parent.width
+                        //             height: 40
+                        //             anchors.top: parent.top
+                        //             spacing: 5
 
-                                       MouseArea {
-                                           anchors.fill: parent
-                                           // onClicked: {
-                                           //  tableView.selection.select(index)
-                                           // }
+                        //             Rectangle {
+                        //                 width: parent.width * 0.5
+                        //                 height: parent.height
+                        //                 color: "lightgray"
+                        //                 border.color: "black"
+                        //                 border.width: 1
 
-                                           onDoubleClicked: {
-                                               editRowIndex = model.row
-                                               editBarcode = model.barcode
-                                               editQuantity = model.quantity
-                                               editDialog.open()
-                                       }
-                                    }
+                        //                 Text {
+                        //                     anchors.centerIn: parent
+                        //                     text: "Штрихкод"
+                        //                     font.bold: true
+                        //                 }
+                        //             }
 
-                                   }
+                        //             Rectangle {
+                        //                 width: parent.width * 0.5
+                        //                 height: parent.height
+                        //                 color: "lightgray"
+                        //                 border.color: "black"
+                        //                 border.width: 1
 
-                                    property var columnWidths: [parent.width * 0.5, parent.width * 0.25]  // Устанавливаем начальную ширину колонок
+                        //                 Text {
+                        //                     anchors.centerIn: parent
+                        //                     text: "Количество"
+                        //                     font.bold: true
+                        //                 }
+                        //             }
+                        //         }
 
-                                   columnWidthProvider: function(column) {
-                                       // const implicitWidth = implicitColumnWidth(column)
-                                       // if (implicitWidth > columnWidths[column]) return implicitWidth
-                                       return columnWidths[column]
-                                   }
 
-                               }//tablview
+                        //        // // Вертикальный заголовок
+                        //        // VerticalHeaderView {
+                        //        //     id: verticalHeader
+                        //        //     anchors.top: tableView.top
+                        //        //     anchors.bottom: tableView.bottom
+                        //        //     anchors.left: parent.left
+                        //        //     anchors.leftMargin: 10
+                        //        //     syncView: tableView
+                        //        // }
+
+                        //        // Основная таблица
+                        //        TableView {
+                        //            id: tableView
+                        //            anchors.fill: parent
+                        //            anchors.topMargin: 60  // Чтобы не перекрывать заголовок
+                        //            model: barcodesData //userTable
+                        //            rowSpacing: 10
+                        //            columnSpacing: 20
+
+                        //            //selectionMode: SingleSelection
+
+
+                        //            delegate: Rectangle {
+
+                        //                // anchors.leftMargin: verticalHeader.right + 30
+                        //                implicitHeight: 50
+                        //                implicitWidth: parent.width * 0.5  //400 // От этого кажется зависит ширина колонок.
+                        //                 //color: tableView.selection.contains(index) ? "lightblue" : "white"
+                        //                //color: model.row === tableView.currentRow ? "lightgray" : "white"
+                        //                border.color: "black"
+                        //                border.width: 1
+
+                        //                Text {
+                        //                    anchors.centerIn: parent
+                        //                    text:  if (column === 0) {
+                        //                               model.barcode
+                        //                           } else if (column === 1) {
+                        //                               model.quantity
+                        //                           }
+                        //                }
+
+                        //                MouseArea {
+                        //                    anchors.fill: parent
+                        //                    // onClicked: {
+                        //                    //  tableView.selection.select(index)
+                        //                    // }
+
+                        //                    onDoubleClicked: {
+                        //                        editRowIndex = model.row
+                        //                        editBarcode = model.barcode
+                        //                        editQuantity = model.quantity
+                        //                        editDialog.open()
+                        //                }
+                        //             }
+
+                        //            }
+
+                        //             property var columnWidths: [parent.width * 0.5, parent.width * 0.25]  // Устанавливаем начальную ширину колонок
+
+                        //            columnWidthProvider: function(column) {
+                        //                // const implicitWidth = implicitColumnWidth(column)
+                        //                // if (implicitWidth > columnWidths[column]) return implicitWidth
+                        //                return columnWidths[column]
+                        //            }
+
+                        //        }//tablview
 
                     }//rectangle
 
@@ -230,46 +359,125 @@ ApplicationWindow {
                 property int editQuantity: 0
                 property int editRowIndex: -1
 
+
                 Dialog {
-                   id: editDialog
-                   anchors.centerIn: parent
-                   title: "Редактировать строку"
-                   standardButtons: Dialog.Ok | Dialog.Cancel
+                    id: editDialog
+                    anchors.centerIn: parent
+                    title: "Редактировать строку"
 
-                   Column {
-                       width: parent.width
-                       spacing: 10
-                       Label {
-                           text: "Штрихкод"
-                       }
-                       TextField {
-                           width: parent.width
-                           id: barcodeField
-                           text: "Работает как мне надо"//editBarcode
-                       }
-                       Label {
-                           text: "Количество"
-                       }
-                       TextField {
-                           width: parent.width
-                           id: quantityField
-                           text: editQuantity.toString()
-                           validator: IntValidator { bottom: 0 }
-                       }
-                   }
+                    Column {
+                        width: parent.width
+                        spacing: 10
+                        Label {
+                            text: "Штрихкод"
+                        }
+                        TextField {
+                            width: parent.width
+                            id: barcodeField
+                            text: "Работает как мне надо"
+                        }
+                        Label {
+                            text: "Количество"
+                        }
+                        TextField {
+                            width: parent.width
+                            id: quantityField
+                            text: editQuantity.toString()
+                            validator: IntValidator { bottom: 0 }
+                        }
 
-                   onAccepted: {
-                       if (editRowIndex >= 0) {
-                           barcodesData.set(editRowIndex, 0, barcodeField.text)
-                           barcodesData.set(editRowIndex, 1, parseInt(quantityField.text))
-                           editRowIndex = -1
-                           editBarcode = ""
-                           editQuantity = 0
-                            //tableView.update() // Принудительно обновить макет таблицы
-                             stackView.push(secondPage)
-                       }
-                   }
-               }
+                        // Custom buttons panel
+                        Row {
+                            width: parent.width
+                            spacing: 10
+                            Button {
+                                text: "Удалить"
+                                onClicked: {
+                                    barcodesData.removeRow(editRowIndex)
+                                    editDialog.close()
+                                }
+                            }
+
+                            Button {
+                                text: "Отмена"
+                                onClicked: {
+                                    editDialog.close()
+                                }
+                            }
+
+                            Button {
+                                text: "ОК"
+                                onClicked: {
+                                    if (editRowIndex >= 0) {
+                                        barcodesData.set(editRowIndex, 0, barcodeField.text)
+                                        barcodesData.set(editRowIndex, 1, parseInt(quantityField.text))
+                                        editRowIndex = -1
+                                        editBarcode = ""
+                                        editQuantity = 0
+                                        stackView.push(secondPage)
+                                    }
+                                    editDialog.close()
+                                }
+                            }
+
+                        }
+                    }
+                }
+
+
+
+               //  Dialog {
+               //     id: editDialog
+               //     anchors.centerIn: parent
+               //     title: "Редактировать строку"
+               //     standardButtons: Dialog.Ok | Dialog.Cancel
+
+               //     Column {
+               //         width: parent.width
+               //         spacing: 10
+               //         Label {
+               //             text: "Штрихкод"
+               //         }
+               //         TextField {
+               //             width: parent.width
+               //             id: barcodeField
+               //             text: "Работает как мне надо"//editBarcode
+               //         }
+               //         Label {
+               //             text: "Количество"
+               //         }
+               //         TextField {
+               //             width: parent.width
+               //             id: quantityField
+               //             text: editQuantity.toString()
+               //             validator: IntValidator { bottom: 0 }
+               //         }
+               //     }
+
+               //     //test:
+               //     // Button {
+               //     //     text: "Удалить строку"
+               //     //     anchors.horizontalCenter: parent.horizontalCenter
+               //     //     anchors.bottom: parent.bottom
+               //     //     onClicked: {
+               //     //       barcodesData.removeRow(editRowIndex)
+               //     //     }
+               //     // }
+               //     //test
+
+
+               //     onAccepted: {
+               //         if (editRowIndex >= 0) {
+               //             barcodesData.set(editRowIndex, 0, barcodeField.text)
+               //             barcodesData.set(editRowIndex, 1, parseInt(quantityField.text))
+               //             editRowIndex = -1
+               //             editBarcode = ""
+               //             editQuantity = 0
+               //              //tableView.update() // Принудительно обновить макет таблицы
+               //             stackView.push(secondPage)
+               //         }
+               //     }
+               // }
 
 
 
