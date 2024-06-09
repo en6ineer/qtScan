@@ -1,6 +1,3 @@
-// Copyright (C) 2021 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only
-
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
@@ -9,6 +6,7 @@
 #include "import_qml_plugins.h"
 #include "HttpClient.h"
 #include "BarcodesData.h"
+#include "SettingsHandler.h"
 
 int main(int argc, char *argv[])
 {
@@ -16,9 +14,8 @@ int main(int argc, char *argv[])
 
     QGuiApplication app(argc, argv);
 
-
-
-
+    // Регистрация SettingsHandler
+    qmlRegisterType<SettingsHandler>("com.myapp.settings", 1, 0, "SettingsHandler");
 
     QQmlApplicationEngine engine;
     const QUrl url(u"qrc:/qt/qml/Main/main.qml"_qs);
@@ -32,15 +29,17 @@ int main(int argc, char *argv[])
         },
         Qt::QueuedConnection);
 
+    // Создание экземпляра HttpClient
     HttpClient httpClient;
     engine.rootContext()->setContextProperty("httpClient", &httpClient);
 
-    // Создаем экземпляр модели данных
+    // Создание экземпляра модели данных BarcodesData
     BarcodesData barcodesData;
-
-    // Регистрируем модель данных для использования в QML
     engine.rootContext()->setContextProperty("barcodesData", &barcodesData);
 
+    // Создание экземпляра SettingsHandler
+    SettingsHandler settingsHandler;
+    engine.rootContext()->setContextProperty("settingsHandler", &settingsHandler);
 
     engine.addImportPath(QCoreApplication::applicationDirPath() + "/qml");
     engine.addImportPath(":/");

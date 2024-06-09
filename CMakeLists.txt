@@ -18,6 +18,8 @@ qt_add_executable(qtandrApp src/main.cpp
     src/HttpClient.cpp
     src/BarcodesData.h
     src/BarcodesData.cpp
+    src/SettingsHandler.h
+    src/SettingsHandler.cpp
 
 )
 

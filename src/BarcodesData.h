@@ -24,10 +24,11 @@ public:
    Q_INVOKABLE QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
     // Методы для управления данными
-   Q_INVOKABLE void addRow(const QString &barcode, int quantity);
+   Q_INVOKABLE void addRow(const QString &barcode); //, int quantity
    Q_INVOKABLE void removeRow(int row);
     Q_INVOKABLE  QVariant get(int row, int column) const;
-   Q_INVOKABLE void set(int row, int column, const QVariant &value);
+   Q_INVOKABLE void set(int row, const QVariant &barcode, const QVariant &quantity);
+    Q_INVOKABLE void clear();
     QHash<int, QByteArray> roleNames() const override; // Метод для определения ролей данных
 
 private:

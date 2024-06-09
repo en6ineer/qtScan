@@ -58,10 +58,22 @@ QHash<int, QByteArray> BarcodesData::roleNames() const
     return roles;
 }
 
-void BarcodesData::addRow(const QString &barcode, int quantity)
+void BarcodesData::addRow(const QString &barcode) //, int quantity
 {
+    // Проверяем, существует ли строка с таким штрихкодом
+    for (int i = 0; i < m_data.size(); ++i) {
+        if (m_data[i].barcode == barcode) {
+            // Если строка найдена, увеличиваем количество
+            m_data[i].quantity += 1; //, int quantity
+            // Уведомляем об изменении данных в строке
+            emit dataChanged(index(i, 0), index(i, 1), {Qt::DisplayRole});
+            return;
+        }
+    }
+
+    // Если штрихкод не найден, добавляем новую строку
     beginInsertRows(QModelIndex(), m_data.size(), m_data.size());
-    m_data.append({barcode, quantity});
+    m_data.append({barcode, 1}); //, int quantity
     endInsertRows();
 }
 
@@ -92,19 +104,31 @@ QVariant BarcodesData::get(int row, int column) const
     return QVariant();
 }
 
-void BarcodesData::set(int row, int column, const QVariant &value)
+void BarcodesData::set(int row, const QVariant &barcode, const QVariant &quantity )
 {
-    if (row < 0 || row >= m_data.size() || column < 0 || column >= 2) {
+    // Проверка на корректность номера строки и валидности значений
+    if (row < 0 || row >= m_data.size()) {
         return;
     }
 
     BarcodeItem &item = m_data[row];
 
-    if (column == 0) {
-        item.barcode = value.toString();
-    } else if (column == 1) {
-        item.quantity = value.toInt();
+    if (item.barcode == barcode.toString()){
+         item.quantity += quantity.toInt();
+    }
+        else{
+            item.barcode = barcode.toString();
+            item.quantity = quantity.toInt();
     }
 
-    emit dataChanged(index(row, column), index(row, column), {Qt::DisplayRole});
+
+    // Уведомляем об изменении данных в строке
+    emit dataChanged(index(row, 0), index(row, 1), {Qt::DisplayRole});
+}
+
+void BarcodesData::clear()
+{
+    beginResetModel();
+    m_data.clear();
+    endResetModel();
 }
