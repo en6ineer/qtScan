@@ -66,7 +66,7 @@ void BarcodesData::addRow(const QString &barcode) //, int quantity
             // Если строка найдена, увеличиваем количество
             m_data[i].quantity += 1; //, int quantity
             // Уведомляем об изменении данных в строке
-            emit dataChanged(index(i, 0), index(i, 1), {Qt::DisplayRole});
+            emit dataChanged(index(i, 0), index(i, 1), {QuantityRole}); //{Qt::DisplayRole}
             return;
         }
     }
@@ -121,9 +121,8 @@ void BarcodesData::set(int row, const QVariant &barcode, const QVariant &quantit
             item.quantity = quantity.toInt();
     }
 
-
     // Уведомляем об изменении данных в строке
-    emit dataChanged(index(row, 0), index(row, 1), {Qt::DisplayRole});
+    emit dataChanged(index(row, 0), index(row, 1), {BarcodeRole, QuantityRole});
 }
 
 void BarcodesData::clear()

@@ -10,64 +10,69 @@ ApplicationWindow {
     visible: true
     title: "1Sklad"
 
+    property string constUrl: ""
+    property string constLogin: ""
+    property string constPass: ""
+    property string constKey: ""
+
     StackView {
         id: stackView
         anchors.fill: parent
         anchors.bottom: navigationBar.top
-        initialItem: mainPage
+        initialItem: secondPage //mainpage
 
-        Component {
-            id: mainPage
-            Page {
+        // Component {
+        //     id: mainPage
+        //     Page {
 
-                Label {
-                    id: labelMainPage
-                    text: "Главная страница"
-                    font.bold: true
-                    font.pixelSize: 36//48
-                    anchors.horizontalCenter: parent.horizontalCenter
-                }
-
-
-                ColumnLayout {
-                    anchors.fill: parent
-                    //anchors.verticalCenter: parent.verticalCenter
-                    anchors.top: parent.top // Привязка к верхней границе окна
-                    anchors.horizontalCenter: parent.horizontalCenter // Выравнивание по горизонта
-                    spacing: 10
-
-                    // Элементы ввода
-                    TextField {
-                        placeholderText: "Логин"
-                        Layout.alignment: Qt.AlignHCenter
-                        Layout.preferredWidth: parent.width * 0.8
-                        Layout.preferredHeight: 60
-                        font.pixelSize: 36//40
-                    }
-
-                    TextField {
-                        id: passField
-                        placeholderText: "Пароль"
-                        Layout.alignment: Qt.AlignHCenter
-                        Layout.preferredWidth: parent.width * 0.8
-                        Layout.preferredHeight: 60
-                        font.pixelSize: 36//40
-                        echoMode: TextInput.Password
-                    }
+        //         Label {
+        //             id: labelMainPage
+        //             text: "Главная страница"
+        //             font.bold: true
+        //             font.pixelSize: 36//48
+        //             anchors.horizontalCenter: parent.horizontalCenter
+        //         }
 
 
-                    Button {
-                        id: authButton
-                        text: "Авторизация"
-                        font.pixelSize: 36//48
-                        Layout.alignment: Qt.AlignHCenter
-                        //Layout.topMargin: passField.bottom
-                        Layout.preferredWidth: parent.width * 0.6
-                        Layout.preferredHeight: parent.height * 0.1
-                    }
-                }//columnLayout
-            }
-        }//component first page
+        //         ColumnLayout {
+        //             anchors.fill: parent
+        //             //anchors.verticalCenter: parent.verticalCenter
+        //             anchors.top: parent.top // Привязка к верхней границе окна
+        //             anchors.horizontalCenter: parent.horizontalCenter // Выравнивание по горизонта
+        //             spacing: 10
+
+        //             // Элементы ввода
+        //             TextField {
+        //                 placeholderText: "Логин"
+        //                 Layout.alignment: Qt.AlignHCenter
+        //                 Layout.preferredWidth: parent.width * 0.8
+        //                 Layout.preferredHeight: 60
+        //                 font.pixelSize: 36//40
+        //             }
+
+        //             TextField {
+        //                 id: passField
+        //                 placeholderText: "Пароль"
+        //                 Layout.alignment: Qt.AlignHCenter
+        //                 Layout.preferredWidth: parent.width * 0.8
+        //                 Layout.preferredHeight: 60
+        //                 font.pixelSize: 36//40
+        //                 echoMode: TextInput.Password
+        //             }
+
+
+        //             Button {
+        //                 id: authButton
+        //                 text: "Авторизация"
+        //                 font.pixelSize: 36//48
+        //                 Layout.alignment: Qt.AlignHCenter
+        //                 //Layout.topMargin: passField.bottom
+        //                 Layout.preferredWidth: parent.width * 0.6
+        //                 Layout.preferredHeight: parent.height * 0.1
+        //             }
+        //         }//columnLayout
+        //     }
+        // }//component first page
 
         Component {
             id: secondPage
@@ -86,23 +91,24 @@ ApplicationWindow {
 
 
                 TextField {
-
                     id: field
-                    y: 30//200 // Размещение надо будет выбрать
+                    y: 35//30 // Размещение надо будет выбрать
                     anchors.horizontalCenter:  parent.horizontalCenter
                     placeholderText: "Поле ввода:"
-                    height: parent.height * 0.1 //100 // И размер поля подредактировать под parent.height * 0.1
-                    width: parent.width - 2
-                    font.pixelSize: 36//40
-                    text: "123129412421"
+                    height: parent.height * 0.08 //100 // И размер поля подредактировать под parent.height * 0.1
+                    width: parent.width //- 2
+                    font.pixelSize: 28//32
+                    //text: "123129412421"
 
-                    //События по добавлению штрихкода:
-                    onTextChanged: {
-                     workTable.text = field.text
-                    }
+                    // //События по добавлению штрихкода:
+                    // onTextChanged: {
+                    //  workTable.text = field.text // как только ввёл
+                    //     //Добавить очистку поля сразу
+                    //     //реагирует на всякую хуйню
+                    // }
 
                       onEditingFinished: {
-                      field.placeholderText = "После"
+                      field.placeholderText = field.text
                       }
 
                     // Здесь просто событие дописываешь по завершению редактирования
@@ -193,7 +199,7 @@ ApplicationWindow {
                             TableView {
                                 id: tableView
                                 anchors.fill: parent
-                                anchors.leftMargin: 80  // Учитываем ширину вертикального заголовка
+                                anchors.leftMargin: 75  //80 Учитываем ширину вертикального заголовка
                                 model: barcodesData
                                 rowSpacing: 10
                                 columnSpacing: 20
@@ -258,7 +264,7 @@ ApplicationWindow {
                         TextField {
                             width: parent.width
                             id: barcodeField
-                            text: "Работает как мне надо"
+                            text: editBarcode//"Работает как мне надо"
                         }
                         Label {
                             text: "Количество"
@@ -297,7 +303,7 @@ ApplicationWindow {
                                         editRowIndex = -1
                                         editBarcode = ""
                                         editQuantity = 0
-                                        stackView.push(secondPage)
+                                        //stackView.push(secondPage)
                                     }
                                     editDialog.close()
                                 }
@@ -306,7 +312,6 @@ ApplicationWindow {
                         }
                     }
                 }
-
 
 
                 Button {
@@ -318,21 +323,22 @@ ApplicationWindow {
                     anchors.bottomMargin: parent.height * 0.1
                     onClicked: {
                       barcodesData.addRow(field.text)
+                        tableView.update()
                     }
                 }
 
-                Button {
-                    text: "Отправить в 1С"
-                    scale: 2//3 //build
-                   // anchors.centerIn: parent
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.bottom: parent.bottom
-                    anchors.bottomMargin: parent.height * 0.1
-                    onClicked: {
-                             httpClient.makePostRequest();
+                // Button {
+                //     text: "Отправить в 1С"
+                //     scale: 2//3 //build
+                //    // anchors.centerIn: parent
+                //     anchors.horizontalCenter: parent.horizontalCenter
+                //     anchors.bottom: parent.bottom
+                //     anchors.bottomMargin: parent.height * 0.1
+                //     onClicked: {
+                //              httpClient.makePostRequest();
 
-                    }
-                }
+                //     }
+                // }
 
 
                 // Здесь на странице надо будет сделать событие установки курсора в поле ввода
@@ -344,13 +350,13 @@ ApplicationWindow {
             id: thirdPage
             Page {
 
-
                 // Компонент для временного сообщения
                    Popup {
                        id: messagePopup
-                       width: parent.width * 0.8
+                       width: parent.width * 0.5
                        height: 50
                        y: parent.height - height - 20
+                       x: parent.width * 0.5 - (width * 0.5)
                        visible: false
                        focus: true
                        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
@@ -386,7 +392,7 @@ ApplicationWindow {
 
                            Label {
                                text: "Настройки программы"
-                               font.pixelSize: 32
+                               font.pixelSize: 28//32
                                Layout.alignment: Qt.AlignHCenter
                            }
 
@@ -394,14 +400,14 @@ ApplicationWindow {
                                id: urlField
                                placeholderText: "URL"
                                Layout.fillWidth: true
-                               text: "http://192.168.1.136/Ihttp/ru_RU/hs/Request/docum"
+                              //text: "http://192.168.1.136/Ihttp/ru_RU/hs/Request/docum"
                            }
 
                            TextField {
                                id: loginField
                                placeholderText: "Логин"
                                Layout.fillWidth: true
-                               text: "bot"
+                              // text: "bot"
                            }
 
                            TextField {
@@ -409,7 +415,7 @@ ApplicationWindow {
                                placeholderText: "Пароль"
                                echoMode: TextInput.Password
                                Layout.fillWidth: true
-                               text: "12345"
+                               //text: "12345"
                            }
 
                            TextField {
@@ -426,21 +432,8 @@ ApplicationWindow {
                                onClicked: {
                                    settingsHandler.saveSettings(urlField.text, loginField.text, passwordField.text, licenseKeyField.text)
                                     showMessage("Настройки сохранены");
-                                   // Загрузка и отображение сохраненных настроек
-                                   var savedSettings = settingsHandler.loadSettings();
-                                   //responseText.text = savedSettings;
-
-                                   var settingsList = savedSettings.split("\n");
-                                   barcodesData.clear(); // Очищаем текущие данные
-                                   barcodesData.addRow(settingsList[0]);
-                                   barcodesData.addRow(settingsList[1]);
-                                   barcodesData.addRow(settingsList[2]);
-                                   barcodesData.addRow(settingsList[3]);
                                }
                            }
-
-
-
 
 
                            Button {
@@ -456,7 +449,7 @@ ApplicationWindow {
                                title: "Подтверждение"
                                standardButtons: Dialog.Yes | Dialog.No
                                Column {
-                                       width: parent.width
+                                       width: parent.width - 10
                                        spacing: 10
                                        Text {
                                           // anchors.horizontalCenter: parent.C
@@ -477,6 +470,14 @@ ApplicationWindow {
                                placeholderText: "Ответ сервера будет здесь"
                                wrapMode: TextEdit.Wrap
                            }
+
+                           Component.onCompleted: {
+                               urlField.text = constUrl
+                               loginField.text = constLogin
+                               passwordField.text = constPass
+                               licenseKeyField.text = constKey
+                           }
+
                        }//ColumnLayout
 
                        Connections {
@@ -488,6 +489,58 @@ ApplicationWindow {
 
             }//page
         }
+    }//StackView
+
+
+
+    // Компонент для временного сообщения
+       Popup {
+           id: messagePopup
+           width: parent.width * 0.5
+           height: 50
+           y: parent.height - height - 20
+           x: parent.width * 0.5 - (width * 0.5)
+           visible: false
+           focus: true
+           closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+           onClosed: visible = false
+
+           Rectangle {
+               anchors.fill: parent
+               color: "lightgray"
+               border.color: "black"
+               radius: 10
+
+               Text {
+                   id: messageText
+                   anchors.centerIn: parent
+                   text: ""
+                   font.pixelSize: 20
+                   color: "black"
+               }
+           }
+       }
+
+       // Функция для отображения сообщения
+       function showMessage(text) {
+           messageText.text = text;
+           messagePopup.open();
+           Qt.createQmlObject('import QtQuick 2.0; Timer { interval: 3000; running: true; repeat: false; onTriggered: messagePopup.close(); }', messagePopup);
+       }
+
+
+    Component.onCompleted: {
+        // Загрузка и отображение сохраненных настроек
+        var savedSettings = settingsHandler.loadSettings();
+         if(savedSettings === ""){
+             showMessage("Не обнаружены настройки!")
+         }else{
+             var settingsList = savedSettings.split("\n");
+             constUrl = settingsList[0];
+             constLogin = settingsList[1];
+             constPass = settingsList[2];
+             constKey = settingsList[3];
+         }
     }
 
 
@@ -495,7 +548,7 @@ ApplicationWindow {
         id: navigationBar
         color: "lightgray"
         width: parent.width
-        height: parent.height * 0.05
+        height: parent.height * 0.08
         anchors.bottom: parent.bottom
 
         RowLayout {
@@ -504,29 +557,29 @@ ApplicationWindow {
 
 
             //Кажется первая страница будет не нужна, надо будет убрать её из проекта
-            Button {
-                id: but1
-                text: "Главная"
-                Layout.fillWidth: true
-                onClicked: stackView.replace(mainPage)
-                font.pixelSize: 10//48//24
-                Layout.preferredWidth: parent.width * 0.30
-                Layout.preferredHeight: parent.width * 0.10
-                background: Rectangle {
-                                color: but1.pressed ? "lightblue" : "lightgray"
-                                border.color: "black"
-                                border.width: 1
-                                radius: 0
-                            }
-            }
+            // Button {
+            //     id: but1
+            //     text: "Главная"
+            //     Layout.fillWidth: true
+            //     onClicked: stackView.replace(mainPage)
+            //     font.pixelSize: 10//48//24
+            //     Layout.preferredWidth: parent.width * 0.30
+            //     Layout.preferredHeight: parent.width * 0.10
+            //     background: Rectangle {
+            //                     color: but1.pressed ? "lightblue" : "lightgray"
+            //                     border.color: "black"
+            //                     border.width: 1
+            //                     radius: 0
+            //                 }
+            // }
 
             Button {
                 id: but2
                 text: "Документ"
                 Layout.fillWidth: true
                 onClicked: stackView.replace(secondPage)
-                font.pixelSize: 10//48//24
-                Layout.preferredWidth: parent.width * 0.30
+                font.pixelSize: 18//48//24
+                Layout.preferredWidth: parent.width * 0.45
                 Layout.preferredHeight: parent.width * 0.10
                 background: Rectangle {
                                 color: but2.pressed ? "lightblue" : "lightgray"
@@ -541,9 +594,9 @@ ApplicationWindow {
                 text: "Настройки"
                 Layout.fillWidth: true
                 onClicked: stackView.replace(thirdPage)
-                font.pixelSize: 10//48//24
-                Layout.preferredWidth: parent.width * 0.30
-                Layout.preferredHeight: parent.width * 0.10
+                font.pixelSize: 18//48//24
+                Layout.preferredWidth: parent.width * 0.45//30
+                Layout.preferredHeight: parent.width * 0.10//10
                 background: Rectangle {
                                 color: but3.pressed ? "lightblue" : "lightgray"
                                 border.color: "black"
@@ -551,6 +604,6 @@ ApplicationWindow {
                                 radius: 0
                             }
             }
-        }
-    }
-}
+        }//RowLayout
+    }//Rectangle
+}//ApplicationWindow
