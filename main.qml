@@ -67,7 +67,7 @@ ApplicationWindow {
                     }
                 }//columnLayout
             }
-        }
+        }//component first page
 
         Component {
             id: secondPage
@@ -78,8 +78,8 @@ ApplicationWindow {
                     anchors.horizontalCenter:  parent.horizontalCenter
                     font.pixelSize: 32
                 }
+
                 //Необходимо сделать:
-                //3) Поле вводе для штрихкода
                 //4) Событие для всей формы чтобы курсор всегда стоял на поле ввода
                 //7) Кнопка отправить в 1С
                 //8) Проверить с изменением высоты квадрата если штрихкод сильно большой.
@@ -107,8 +107,6 @@ ApplicationWindow {
 
                     // Здесь просто событие дописываешь по завершению редактирования
                 }
-
-
 
 
                 Rectangle {
@@ -241,9 +239,6 @@ ApplicationWindow {
                     }//rectangle
 
 
-
-
-
                 property string editBarcode: ""
                 property int editQuantity: 0
                 property int editRowIndex: -1
@@ -326,6 +321,17 @@ ApplicationWindow {
                     }
                 }
 
+                Button {
+                    text: "Отправить в 1С"
+                    scale: 2//3 //build
+                   // anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: parent.height * 0.1
+                    onClicked: {
+                       httpClient.makePostRequest(urlField.text, loginField.text, passField.text, barcodesData);
+                    }
+                }
 
 
                 // Здесь на странице надо будет сделать событие установки курсора в поле ввода
@@ -433,7 +439,7 @@ ApplicationWindow {
                            }
 
 
-                                   //httpClient.makePostRequest(urlField.text, data);
+
 
 
                            Button {
@@ -479,70 +485,7 @@ ApplicationWindow {
                            }
                        }
 
-
-
-
-                // Label {
-                //    // id: responseText
-                //     text: "Настройки программы"
-                //     anchors.horizontalCenter:  parent.horizontalCenter
-                //     font.pixelSize: 32
-                // }
-                // //Необходимо сделать:
-                // //1) Поля url
-                // //2) Поля с логином паролем
-                // //3) Поле для лицензионного ключа
-                // //4) Проверку на этот ключ
-                // //5) Возможность записи системных настроек в бин файл на устройстве, и его чтение при запуске
-                // //6) Лог окно для отладки ошибок.
-
-                // Label {
-                //     scale: 2
-                //    id: responseText
-                //     text: "ответ"
-                //     anchors.horizontalCenter:  parent.horizontalCenter
-                //     anchors.verticalCenter: parent.verticalCenter
-                //     font.pixelSize: 32
-                // }
-                //        Button {
-                //            anchors.topMargin: parent.top + 30
-                //            anchors.horizontalCenter: parent.horizontalCenter
-                //                    text: "Make POST Request"
-                //                    scale: 1.5
-                //                    onClicked: {
-                //                        // Переписать под userTable.rows
-                //                        // Ещё лучше сделать чтобы строки сразу в фиксированной структуре хранились
-                //                        // Типа вводишь одиннаковый штрихкод, его количество увеличивается на 1 штуку
-                //                        var data = {};
-                //                               for (var i = 0; i < barcodesModel.count; i++) {
-                //                                   var item = barcodesModel.get(i);
-                //                                   data[item.barcode] = item.quantity;
-                //                               }
-                //                        //httpClient.makeGetRequest("http://192.168.1.138//Bot/ru_RU/hs/bots/ping")
-                //                        httpClient.makePostRequest("http://192.168.1.136/Ihttp/ru_RU/hs/Request/docum", data)
-                //                    }
-                //                }
-
-                // // TextArea {
-                // //     id: responseText
-                // //     anchors.bottom: parent.bottom
-                // //     anchors.horizontalCenter: parent.horizontalCenter
-                // //     width: parent.width
-                // //     height: parent.height * 0.5
-                // //     scale: 1.5
-                // //     font.pixelSize: 40
-                // //     //readOnly: true
-                // //     text: "ababababdbsdbasd"
-                // // }
-
-                // Connections {
-                //        target: httpClient
-                //        function onRequestFinished(response) {
-                //            responseText.text = response;
-                //        }
-                //    }
-
-            }
+            }//page
         }
     }
 
@@ -558,6 +501,8 @@ ApplicationWindow {
             anchors.fill: parent
             anchors.margins: 5
 
+
+            //Кажется первая страница будет не нужна, надо будет убрать её из проекта
             Button {
                 id: but1
                 text: "Главная"
