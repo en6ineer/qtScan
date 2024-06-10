@@ -6,15 +6,16 @@
 #include <QNetworkReply>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include "BarcodesData.h"  // Добавляем включение заголовочного файла BarcodesData
+#include "BarcodesData.h"
+#include "SettingsHandler.h"
 
 class HttpClient : public QObject
 {
     Q_OBJECT
 public:
-    explicit HttpClient(QObject *parent = nullptr);
+    explicit HttpClient(SettingsHandler *settingsHandler, BarcodesData *barcodesData, QObject *parent = nullptr);
     Q_INVOKABLE void makeGetRequest(const QString &url);
-    Q_INVOKABLE void makePostRequest(const QString &url, const QString &login, const QString &pass, const BarcodesData &barcodesData); // Обновляем метод
+    Q_INVOKABLE void makePostRequest();
 
 signals:
     void requestFinished(const QString &response);
@@ -24,7 +25,9 @@ private slots:
 
 private:
     QNetworkAccessManager *networkManager;
-    QString toBase64(const QString &login, const QString &pass);  // Добавляем метод для преобразования в Base64
+    SettingsHandler *settingsHandler; // Ссылка на объект SettingsHandler
+    BarcodesData *barcodesData;       // Ссылка на объект BarcodesData
+    QString toBase64(const QString &login, const QString &pass);
 };
 
 #endif // HTTPCLIENT_H

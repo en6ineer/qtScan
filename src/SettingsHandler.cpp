@@ -2,11 +2,19 @@
 #include <QFile>
 #include <QDataStream>
 #include <QStandardPaths>
-#include <QStringList>
 
-SettingsHandler::SettingsHandler(QObject *parent) : QObject(parent)
+void SettingsHandler::setupSettings()
 {
+    // Определение пути к файлу настроек
+    QString filePath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/settings.bin";
+    QFile file(filePath);
+    if (file.open(QIODevice::ReadOnly)) {
+        QDataStream in(&file);
+        in >> m_url >> m_login >> m_password >> m_licenseKey; // Чтение настроек из файла
+        file.close();
+    }
 }
+
 
 void SettingsHandler::saveSettings(const QString &url, const QString &login, const QString &password, const QString &licenseKey)
 {

@@ -14,9 +14,6 @@ int main(int argc, char *argv[])
 
     QGuiApplication app(argc, argv);
 
-    // Регистрация SettingsHandler
-    qmlRegisterType<SettingsHandler>("com.myapp.settings", 1, 0, "SettingsHandler");
-
     QQmlApplicationEngine engine;
     const QUrl url(u"qrc:/qt/qml/Main/main.qml"_qs);
     QObject::connect(
@@ -29,17 +26,23 @@ int main(int argc, char *argv[])
         },
         Qt::QueuedConnection);
 
-    // Создание экземпляра HttpClient
-    HttpClient httpClient;
-    engine.rootContext()->setContextProperty("httpClient", &httpClient);
+
+    qmlRegisterType<HttpClient>("App", 1, 0, "HttpClient");
+    qmlRegisterType<BarcodesData>("App", 1, 0, "BarcodesData");
+    qmlRegisterType<SettingsHandler>("App", 1, 0, "SettingsHandler");
+
+    // Создание экземпляра SettingsHandler
+    SettingsHandler settingsHandler;
+    engine.rootContext()->setContextProperty("settingsHandler", &settingsHandler);
 
     // Создание экземпляра модели данных BarcodesData
     BarcodesData barcodesData;
     engine.rootContext()->setContextProperty("barcodesData", &barcodesData);
 
-    // Создание экземпляра SettingsHandler
-    SettingsHandler settingsHandler;
-    engine.rootContext()->setContextProperty("settingsHandler", &settingsHandler);
+    // Создание экземпляра HttpClient с передачей ссылок на SettingsHandler и BarcodesData
+    HttpClient httpClient(&settingsHandler, &barcodesData);
+    engine.rootContext()->setContextProperty("httpClient", &httpClient);
+
 
     engine.addImportPath(QCoreApplication::applicationDirPath() + "/qml");
     engine.addImportPath(":/");

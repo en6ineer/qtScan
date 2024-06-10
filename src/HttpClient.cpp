@@ -4,11 +4,16 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QNetworkRequest>
+#include "SettingsHandler.h"
 
-HttpClient::HttpClient(QObject *parent) : QObject(parent)
+HttpClient::HttpClient(SettingsHandler *settingsHandler, BarcodesData *barcodesData, QObject *parent) : QObject(parent)
 {
     networkManager = new QNetworkAccessManager(this);
     connect(networkManager, &QNetworkAccessManager::finished, this, &HttpClient::onFinished);
+
+    // Сохранение ссылок на объекты SettingsHandler и BarcodesData
+    this->settingsHandler = settingsHandler;
+    this->barcodesData = barcodesData;
 }
 
 void HttpClient::makeGetRequest(const QString &url)
@@ -23,8 +28,13 @@ void HttpClient::makeGetRequest(const QString &url)
     networkManager->get(request);
 }
 
-void HttpClient::makePostRequest(const QString &url, const QString &login, const QString &pass, const BarcodesData &barcodesData)
+void HttpClient::makePostRequest()
 {
+    // Получаем настройки из свойств объекта SettingsHandler
+    QString url = settingsHandler->url();
+    QString login = settingsHandler->login();
+    QString pass = settingsHandler->password();
+
     QNetworkRequest request;
     request.setUrl(QUrl(url));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
@@ -37,9 +47,9 @@ void HttpClient::makePostRequest(const QString &url, const QString &login, const
 
     // Преобразуем BarcodesData в QJsonObject
     QJsonObject jsonObject;
-    for (int row = 0; row < barcodesData.rowCount(); ++row) {
-        QString barcode = barcodesData.get(row, 0).toString();
-        int quantity = barcodesData.get(row, 1).toInt();
+    for (int row = 0; row < barcodesData->rowCount(); ++row) {
+        QString barcode = barcodesData->get(row, 0).toString();
+        int quantity = barcodesData->get(row, 1).toInt();
         jsonObject.insert(barcode, quantity);
     }
 
@@ -48,6 +58,7 @@ void HttpClient::makePostRequest(const QString &url, const QString &login, const
 
     networkManager->post(request, jsonData);
 }
+
 
 void HttpClient::onFinished(QNetworkReply *reply)
 {

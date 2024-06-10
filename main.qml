@@ -329,7 +329,8 @@ ApplicationWindow {
                     anchors.bottom: parent.bottom
                     anchors.bottomMargin: parent.height * 0.1
                     onClicked: {
-                       httpClient.makePostRequest(urlField.text, loginField.text, passField.text, barcodesData);
+                             httpClient.makePostRequest();
+
                     }
                 }
 
@@ -400,7 +401,7 @@ ApplicationWindow {
                                id: loginField
                                placeholderText: "Логин"
                                Layout.fillWidth: true
-                               text: "Bot"
+                               text: "bot"
                            }
 
                            TextField {
@@ -408,7 +409,7 @@ ApplicationWindow {
                                placeholderText: "Пароль"
                                echoMode: TextInput.Password
                                Layout.fillWidth: true
-                               text: "1234"
+                               text: "12345"
                            }
 
                            TextField {
