@@ -98,20 +98,33 @@ ApplicationWindow {
                     height: parent.height * 0.08 //100 // И размер поля подредактировать под parent.height * 0.1
                     width: parent.width //- 2
                     font.pixelSize: 28//32
-                    //text: "123129412421"
+                    // Отключение экранной клавиатуры
+                    inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhHiddenText
 
-                    // //События по добавлению штрихкода:
-                    // onTextChanged: {
-                    //  workTable.text = field.text // как только ввёл
-                    //     //Добавить очистку поля сразу
-                    //     //реагирует на всякую хуйню
-                    // }
+                    onFocusChanged: {
+                       if (focus) {
+                           Qt.inputMethod.hide();
+                       }
+                   }
 
-                      onEditingFinished: {
-                      field.placeholderText = field.text
-                      }
+                   Keys.onPressed: {
+                       if ((event.key === 0 || event.key === 16777220) && field.text != "") {
+                           barcodesData.addRow(field.text)
+                           field.text = ""
+                           event.accepted = true
+                       }
+                   }
 
-                    // Здесь просто событие дописываешь по завершению редактирования
+                   // onTextChanged: {
+                   //                 // Дополнительные действия при изменении текста
+                   //             }
+
+
+                      // onEditingFinished: {
+                      // field.placeholderText = field.text
+                      // }
+
+
                 }
 
 
@@ -212,7 +225,8 @@ ApplicationWindow {
 
                                     Text {
                                         anchors.centerIn: parent
-                                        text: {
+                                        text: {                                    
+                                            wrapMode: Text.Wrap
                                             if (column === 0) {
                                                 return model.barcode
                                             } else if (column === 1) {
@@ -314,31 +328,72 @@ ApplicationWindow {
                 }
 
 
-                Button {
-                    text: "Добавить штрихкод"
-                    scale: 2//3 //build
-                   // anchors.centerIn: parent
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.bottom: parent.bottom
-                    anchors.bottomMargin: parent.height * 0.1
-                    onClicked: {
-                      barcodesData.addRow(field.text)
-                        tableView.update()
-                    }
-                }
-
                 // Button {
-                //     text: "Отправить в 1С"
+                //     text: "Добавить штрихкод"
                 //     scale: 2//3 //build
                 //    // anchors.centerIn: parent
                 //     anchors.horizontalCenter: parent.horizontalCenter
                 //     anchors.bottom: parent.bottom
                 //     anchors.bottomMargin: parent.height * 0.1
                 //     onClicked: {
-                //              httpClient.makePostRequest();
-
+                //       barcodesData.addRow(field.text)
+                //        // tableView.update()
                 //     }
                 // }
+
+                Button {
+                    text: "Отправить в 1С"
+                    //scale: 2//3 //build
+                   // anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: parent.height * 0.1
+                    onClicked: {
+                        if(constUrl == "" || constLogin == "" || constPass == ""){
+                        showMessage("Не заданы настройки подключения!")
+                        //тут же бахнем проверку на ключ лицензии.
+                        }else{
+                          httpClient.makePostRequest();
+                        }
+                    }
+                }
+
+
+
+                // Компонент для временного сообщения
+                   Popup {
+                       id: messagePopup
+                       width: parent.width
+                       height: 50
+                       y: parent.height - height - 20
+                       x: parent.width * 0.5 - (width * 0.5)
+                       visible: false
+                       focus: true
+                       closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+                       onClosed: visible = false
+
+                       Rectangle {
+                           anchors.fill: parent
+                           color: "lightgray"
+                           border.color: "black"
+                           radius: 10
+
+                           Text {
+                               id: messageText
+                               anchors.centerIn: parent
+                               text: ""
+                               font.pixelSize: 24
+                               color: "black"
+                           }
+                       }
+                   }
+
+                   // Функция для отображения сообщения
+                   function showMessage(text) {
+                       messageText.text = text;
+                       messagePopup.open();
+                       Qt.createQmlObject('import QtQuick 2.0; Timer { interval: 3000; running: true; repeat: false; onTriggered: messagePopup.close(); }', messagePopup);
+                   }
 
 
                 // Здесь на странице надо будет сделать событие установки курсора в поле ввода
@@ -401,13 +456,14 @@ ApplicationWindow {
                                placeholderText: "URL"
                                Layout.fillWidth: true
                               //text: "http://192.168.1.136/Ihttp/ru_RU/hs/Request/docum"
+                               text: "http://192.168.1.138//Bot/ru_RU/hs/bots/send"
                            }
 
                            TextField {
                                id: loginField
                                placeholderText: "Логин"
                                Layout.fillWidth: true
-                              // text: "bot"
+                              text: "bot"
                            }
 
                            TextField {
@@ -415,7 +471,7 @@ ApplicationWindow {
                                placeholderText: "Пароль"
                                echoMode: TextInput.Password
                                Layout.fillWidth: true
-                               //text: "12345"
+                               text: "12345"
                            }
 
                            TextField {
@@ -430,8 +486,25 @@ ApplicationWindow {
                                text: "Сохранить настройки"
                                Layout.alignment: Qt.AlignHCenter
                                onClicked: {
-                                   settingsHandler.saveSettings(urlField.text, loginField.text, passwordField.text, licenseKeyField.text)
+                                   if(urlField.text == "" || loginField.text == "" || passwordField.text == ""){
+                                      showMessage("Заполните все поля!");
+                                   }else{
+                                    settingsHandler.saveSettings(urlField.text, loginField.text, passwordField.text, licenseKeyField.text)
                                     showMessage("Настройки сохранены");
+                                       constUrl = urlField.text
+                                       constLogin = loginField.text
+                                       constPass = passwordField.text
+                                       constKey = licenseKeyField.text
+
+
+                                   // settingsHandler.saveSettings("http://192.168.1.138//Bot/ru_RU/hs/bots/send", "bot", "12345", "")
+                                   // showMessage("Настройки сохранены");
+                                   //    constUrl = "http://192.168.1.138//Bot/ru_RU/hs/bots/send"
+                                   //    constLogin =  "bot"
+                                   //    constPass = "12345"
+                                   //    constKey = ""
+
+                                   }
                                }
                            }
 
@@ -445,15 +518,21 @@ ApplicationWindow {
                            }
 
                            Dialog {
+                               anchors.centerIn: parent
                                id: confirmClearDialog
                                title: "Подтверждение"
                                standardButtons: Dialog.Yes | Dialog.No
                                Column {
-                                       width: parent.width - 10
+                                       width: parent.width - 10 //  ColumnLayout {
+                                       //                                   anchors.fill: parent
                                        spacing: 10
                                        Text {
-                                          // anchors.horizontalCenter: parent.C
+                                           width: parent.width
                                            text: "Вы уверены, что хотите очистить список штрихкодов?"
+                                           wrapMode: Text.Wrap
+                                            //Layout.fillWidth: true
+                                                           // Если нужно задать максимальную ширину текста, можно использовать width:
+                                                           // width: myDialog.width * 0.9
                                        }
                                    }
 
@@ -496,7 +575,7 @@ ApplicationWindow {
     // Компонент для временного сообщения
        Popup {
            id: messagePopup
-           width: parent.width * 0.5
+           width: parent.width * 0.8
            height: 50
            y: parent.height - height - 20
            x: parent.width * 0.5 - (width * 0.5)
@@ -515,7 +594,7 @@ ApplicationWindow {
                    id: messageText
                    anchors.centerIn: parent
                    text: ""
-                   font.pixelSize: 20
+                   font.pixelSize: 26 //20
                    color: "black"
                }
            }
@@ -578,9 +657,9 @@ ApplicationWindow {
                 text: "Документ"
                 Layout.fillWidth: true
                 onClicked: stackView.replace(secondPage)
-                font.pixelSize: 18//48//24
+                font.pixelSize: 24//48//24
                 Layout.preferredWidth: parent.width * 0.45
-                Layout.preferredHeight: parent.width * 0.10
+                Layout.preferredHeight: parent.height * 0.90
                 background: Rectangle {
                                 color: but2.pressed ? "lightblue" : "lightgray"
                                 border.color: "black"
@@ -594,9 +673,9 @@ ApplicationWindow {
                 text: "Настройки"
                 Layout.fillWidth: true
                 onClicked: stackView.replace(thirdPage)
-                font.pixelSize: 18//48//24
+                font.pixelSize: 24//48//24
                 Layout.preferredWidth: parent.width * 0.45//30
-                Layout.preferredHeight: parent.width * 0.10//10
+                Layout.preferredHeight: parent.height * 0.90//10
                 background: Rectangle {
                                 color: but3.pressed ? "lightblue" : "lightgray"
                                 border.color: "black"
