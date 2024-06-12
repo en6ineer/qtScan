@@ -114,7 +114,7 @@ void BarcodesData::set(int row, const QVariant &barcode, const QVariant &quantit
     BarcodeItem &item = m_data[row];
 
     if (item.barcode == barcode.toString()){
-         item.quantity += quantity.toInt();
+         item.quantity = quantity.toInt();
     }
         else{
             item.barcode = barcode.toString();

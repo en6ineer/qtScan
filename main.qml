@@ -352,8 +352,10 @@ ApplicationWindow {
                         if(constUrl == "" || constLogin == "" || constPass == ""){
                         showMessage("Не заданы настройки подключения!")
                         //тут же бахнем проверку на ключ лицензии.
-                        }else{
+                        }else if(barcodesData.rowCount() !== 0){
                           httpClient.makePostRequest();
+                        }else{
+                            showMessage("Список штрихкодов пуст!")
                         }
                     }
                 }
@@ -394,6 +396,14 @@ ApplicationWindow {
                        messagePopup.open();
                        Qt.createQmlObject('import QtQuick 2.0; Timer { interval: 3000; running: true; repeat: false; onTriggered: messagePopup.close(); }', messagePopup);
                    }
+
+                   Connections {
+                           target: httpClient
+                           onRequestFinished: {
+                               showMessage(response)
+                           }
+                       }
+
 
 
                 // Здесь на странице надо будет сделать событие установки курсора в поле ввода
@@ -455,15 +465,15 @@ ApplicationWindow {
                                id: urlField
                                placeholderText: "URL"
                                Layout.fillWidth: true
-                              //text: "http://192.168.1.136/Ihttp/ru_RU/hs/Request/docum"
-                               text: "http://192.168.1.138//Bot/ru_RU/hs/bots/send"
+                                //text: "http://192.168.1.136/Ihttp/ru_RU/hs/Request/docum"
+                               //text: "http://192.168.1.138//Bot/ru_RU/hs/bots/send"
                            }
 
                            TextField {
                                id: loginField
                                placeholderText: "Логин"
                                Layout.fillWidth: true
-                              text: "bot"
+                              //text: "bot"
                            }
 
                            TextField {
@@ -471,7 +481,7 @@ ApplicationWindow {
                                placeholderText: "Пароль"
                                echoMode: TextInput.Password
                                Layout.fillWidth: true
-                               text: "12345"
+                              // text: "12345"
                            }
 
                            TextField {
