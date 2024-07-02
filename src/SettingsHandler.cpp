@@ -25,6 +25,7 @@ void SettingsHandler::saveSettings(const QString &url, const QString &login, con
         QDataStream out(&file);
         out << url << login << password << licenseKey; // Сохранение настроек в бинарный файл
         file.close();
+        setupSettings();
     }
 }
 

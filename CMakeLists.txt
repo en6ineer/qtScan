@@ -21,6 +21,7 @@ qt_add_executable(qtandrApp src/main.cpp
     src/SettingsHandler.h
     src/SettingsHandler.cpp
 
+
 )
 
 qt_add_resources(qtandrApp "configuration"

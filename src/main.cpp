@@ -26,6 +26,8 @@ int main(int argc, char *argv[])
         },
         Qt::QueuedConnection);
 
+    // AndroidBackHandler androidBackHandler;
+    // engine.rootContext()->setContextProperty("androidBackHandler", &androidBackHandler);
 
     qmlRegisterType<HttpClient>("App", 1, 0, "HttpClient");
     qmlRegisterType<BarcodesData>("App", 1, 0, "BarcodesData");

@@ -15,64 +15,55 @@ ApplicationWindow {
     property string constPass: ""
     property string constKey: ""
 
+
+
+    // Диалоговое окно подтверждения закрытия
+       Dialog {
+           id: exitDialog
+           title: "Подтверждение выхода"
+           modal: true
+           standardButtons: DialogButtonBox.Yes | DialogButtonBox.No
+           visible: false
+
+           onAccepted: {
+                       Qt.quit();
+                   }
+
+           onRejected: {
+               exitDialog.visible = false;
+           }
+
+
+           contentItem: Column {
+               spacing: 10
+               Text {
+                   text: "Вы уверены, что хотите закрыть приложение?\nСписок штрихкодов будет очищен."
+                   wrapMode: Text.Wrap
+               }
+           }
+       }
+
+       // // Перехват события закрытия
+       // onClosing: {
+       //     exitDialog.visible = true;
+       //     event.accepted = false;
+       // }
+
+       // Connections {
+       //         target: androidBackHandler
+       //         onBackPressed: {
+       //             exitDialog.open();
+       //         }
+       //     }
+
+
     StackView {
         id: stackView
         anchors.fill: parent
         anchors.bottom: navigationBar.top
         initialItem: secondPage //mainpage
 
-        // Component {
-        //     id: mainPage
-        //     Page {
 
-        //         Label {
-        //             id: labelMainPage
-        //             text: "Главная страница"
-        //             font.bold: true
-        //             font.pixelSize: 36//48
-        //             anchors.horizontalCenter: parent.horizontalCenter
-        //         }
-
-
-        //         ColumnLayout {
-        //             anchors.fill: parent
-        //             //anchors.verticalCenter: parent.verticalCenter
-        //             anchors.top: parent.top // Привязка к верхней границе окна
-        //             anchors.horizontalCenter: parent.horizontalCenter // Выравнивание по горизонта
-        //             spacing: 10
-
-        //             // Элементы ввода
-        //             TextField {
-        //                 placeholderText: "Логин"
-        //                 Layout.alignment: Qt.AlignHCenter
-        //                 Layout.preferredWidth: parent.width * 0.8
-        //                 Layout.preferredHeight: 60
-        //                 font.pixelSize: 36//40
-        //             }
-
-        //             TextField {
-        //                 id: passField
-        //                 placeholderText: "Пароль"
-        //                 Layout.alignment: Qt.AlignHCenter
-        //                 Layout.preferredWidth: parent.width * 0.8
-        //                 Layout.preferredHeight: 60
-        //                 font.pixelSize: 36//40
-        //                 echoMode: TextInput.Password
-        //             }
-
-
-        //             Button {
-        //                 id: authButton
-        //                 text: "Авторизация"
-        //                 font.pixelSize: 36//48
-        //                 Layout.alignment: Qt.AlignHCenter
-        //                 //Layout.topMargin: passField.bottom
-        //                 Layout.preferredWidth: parent.width * 0.6
-        //                 Layout.preferredHeight: parent.height * 0.1
-        //             }
-        //         }//columnLayout
-        //     }
-        // }//component first page
 
         Component {
             id: secondPage
@@ -85,22 +76,20 @@ ApplicationWindow {
                 }
 
                 //Необходимо сделать:
-                //4) Событие для всей формы чтобы курсор всегда стоял на поле ввода
-                //7) Кнопка отправить в 1С
                 //8) Проверить с изменением высоты квадрата если штрихкод сильно большой.
 
 
                 TextField {
                     id: field
-                    y: 35//30 // Размещение надо будет выбрать
+                    y: 35
                     anchors.horizontalCenter:  parent.horizontalCenter
                     placeholderText: "Поле ввода:"
-                    height: parent.height * 0.08 //100 // И размер поля подредактировать под parent.height * 0.1
-                    width: parent.width //- 2
-                    font.pixelSize: 28//32
-                    // Отключение экранной клавиатуры
+                    height: parent.height * 0.08
+                    width: parent.width
+                    font.pixelSize: 28
+                    // Отключение экранной клавиатуры не работает
                     inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhHiddenText
-
+                    text: "09877665544" //for debug
                     onFocusChanged: {
                        if (focus) {
                            Qt.inputMethod.hide();
@@ -114,17 +103,6 @@ ApplicationWindow {
                            event.accepted = true
                        }
                    }
-
-                   // onTextChanged: {
-                   //                 // Дополнительные действия при изменении текста
-                   //             }
-
-
-                      // onEditingFinished: {
-                      // field.placeholderText = field.text
-                      // }
-
-
                 }
 
 
@@ -179,7 +157,7 @@ ApplicationWindow {
                             width: parent.width
                             height: parent.height - 60  // Учитываем высоту горизонтального заголовка
                             anchors.top: parent.top
-                            anchors.topMargin: 60  // Отступ сверху для горизонтального заголовка
+                            anchors.topMargin: 60
 
 
 
@@ -241,6 +219,7 @@ ApplicationWindow {
                                             editRowIndex = model.row
                                             editBarcode = model.barcode
                                             editQuantity = model.quantity
+                                            editComment = model.comment
                                             editDialog.open()
                                         }
                                     }
@@ -260,13 +239,16 @@ ApplicationWindow {
 
 
                 property string editBarcode: ""
+                property string editComment: ""
                 property int editQuantity: 0
                 property int editRowIndex: -1
 
 
                 Dialog {
                     id: editDialog
-                    anchors.centerIn: parent
+                    x: parent.width / 2 - width / 2 // центр по горизонтали
+                    y: 30
+                    // Тут наверное лучше сделать закреп выше центра, чтобы клавиатура не перекрывала.
                     title: "Редактировать строку"
 
                     Column {
@@ -288,6 +270,15 @@ ApplicationWindow {
                             id: quantityField
                             text: editQuantity.toString()
                             validator: IntValidator { bottom: 0 }
+                        }
+
+                        Label {
+                            text: "Комментарий"
+                        }
+                        TextField {
+                            width: parent.width
+                            id: commentField
+                            text: editComment//"Работает как мне надо"
                         }
 
                         // Custom buttons panel
@@ -313,11 +304,11 @@ ApplicationWindow {
                                 text: "ОК"
                                 onClicked: {
                                     if (editRowIndex >= 0) {
-                                        barcodesData.set(editRowIndex, barcodeField.text, parseInt(quantityField.text))
+                                        barcodesData.set(editRowIndex, barcodeField.text, parseInt(quantityField.text), commentField.text)
                                         editRowIndex = -1
                                         editBarcode = ""
                                         editQuantity = 0
-                                        //stackView.push(secondPage)
+                                        editComment = ""
                                     }
                                     editDialog.close()
                                 }
@@ -328,18 +319,18 @@ ApplicationWindow {
                 }
 
 
-                // Button {
-                //     text: "Добавить штрихкод"
-                //     scale: 2//3 //build
-                //    // anchors.centerIn: parent
-                //     anchors.horizontalCenter: parent.horizontalCenter
-                //     anchors.bottom: parent.bottom
-                //     anchors.bottomMargin: parent.height * 0.1
-                //     onClicked: {
-                //       barcodesData.addRow(field.text)
-                //        // tableView.update()
-                //     }
-                // }
+                Button {
+                    text: "Добавить штрихкод"
+                    scale: 2//3 //build
+                   // anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: parent.height * 0.1
+                    onClicked: {
+                      barcodesData.addRow(field.text)
+                        field.text = "12345"
+                    }
+                }
 
                 Button {
                     text: "Отправить в 1С"
@@ -349,10 +340,11 @@ ApplicationWindow {
                     anchors.bottom: parent.bottom
                     anchors.bottomMargin: parent.height * 0.1
                     onClicked: {
-                        if(constUrl == "" || constLogin == "" || constPass == ""){
+                        if(constUrl === "" || constLogin === "" || constPass === ""){
                         showMessage("Не заданы настройки подключения!")
                         //тут же бахнем проверку на ключ лицензии.
-                        }else if(barcodesData.rowCount() !== 0){
+                        }else if(barcodesData.rowCount() !== 0)
+                        {
                           httpClient.makePostRequest();
                         }else{
                             showMessage("Список штрихкодов пуст!")
@@ -404,9 +396,10 @@ ApplicationWindow {
                            }
                        }
 
+                   Component.onCompleted: {
+                                   field.forceActiveFocus()
+                               }
 
-
-                // Здесь на странице надо будет сделать событие установки курсора в поле ввода
 
             }//page
         }//component
@@ -454,7 +447,7 @@ ApplicationWindow {
                 ColumnLayout {
                            anchors.fill: parent
                            anchors.margins: 20
-
+                            //spacing: 5
                            Label {
                                text: "Настройки программы"
                                font.pixelSize: 28//32
@@ -467,13 +460,14 @@ ApplicationWindow {
                                Layout.fillWidth: true
                                 //text: "http://192.168.1.136/Ihttp/ru_RU/hs/Request/docum"
                                //text: "http://192.168.1.138//Bot/ru_RU/hs/bots/send"
+                               text:  "http://192.168.1.107:8080/sklad"
                            }
 
                            TextField {
                                id: loginField
                                placeholderText: "Логин"
                                Layout.fillWidth: true
-                              //text: "bot"
+                              text: "bot"
                            }
 
                            TextField {
@@ -481,7 +475,7 @@ ApplicationWindow {
                                placeholderText: "Пароль"
                                echoMode: TextInput.Password
                                Layout.fillWidth: true
-                              // text: "12345"
+                               text: "12345"
                            }
 
                            TextField {
@@ -556,12 +550,12 @@ ApplicationWindow {
                                Layout.fillWidth: true
                                Layout.fillHeight: true
                                readOnly: true
-                               placeholderText: "Ответ сервера будет здесь"
+                               placeholderText: "Debug log:"
                                wrapMode: TextEdit.Wrap
                            }
 
                            Component.onCompleted: {
-                               urlField.text = constUrl
+                              // urlField.text = constUrl
                                loginField.text = constLogin
                                passwordField.text = constPass
                                licenseKeyField.text = constKey
