@@ -7,7 +7,7 @@
 SettingsHandler::SettingsHandler(QObject *parent)
     : QObject(parent)
 {
-    loadSettings(); // Вызов метода для установки начальных значений свойств
+    loadSettings();
 }
 
 // Метод для сериализации структуры Method
@@ -47,7 +47,7 @@ Database SettingsHandler::currentDatabase() const {
 // Метод для установки текущей базы данных
 void SettingsHandler::setCurrentDatabase(const Database &db) {
     m_currentDatabase = db;
-    emit currentDatabaseChanged(); // Сигнал о том, что текущая база данных изменена
+    emit currentDatabaseChanged();
 }
 
 // Метод для получения текущего метода
@@ -58,57 +58,79 @@ Method SettingsHandler::currentMethod() const {
 // Метод для установки текущего метода
 void SettingsHandler::setCurrentMethod(const Method &method) {
     m_currentMethod = method;
-    emit currentMethodChanged(); // Сигнал о том, что текущий метод изменен
+    emit currentMethodChanged();
 }
 
-// Метод для добавления новой базы данных
-void SettingsHandler::addDatabase(const QString &name, const QString &login, const QString &password, const QString &url) {
-    Database db = {name, url, login, password}; // Создание новой базы данных
-    m_databases[name] = db; // Добавление базы данных в QMap
-    m_databaseNames.append(name); // Добавление имени базы данных в список имен
-    saveSettings(); // Сохранение настроек
-    emit databasesChanged(); // Сигнал о том, что список баз данных изменен
-}
 
-// Метод для редактирования существующей базы данных
-void SettingsHandler::editDatabase(const QString &name, const QString &login, const QString &password, const QString &url) {
-    if (m_databases.contains(name)) { // Проверка, существует ли база данных с таким именем
-        m_databases[name].login = login; // Обновление логина
-        m_databases[name].password = password; // Обновление пароля
-        m_databases[name].url = url; // Обновление URL
-        saveSettings(); // Сохранение настроек
-        emit databasesChanged(); // Сигнал о том, что список баз данных изменен
-        if (name == m_currentDatabase.name) {
-            emit currentDatabaseChanged(); // Сигнал о том, что текущая база данных изменена
-        }
+// Метод для установки текущей базы данных по имени
+void SettingsHandler::setDatabase(const QString &name) {
+    if (m_databases.contains(name)) {
+        setCurrentDatabase(m_databases[name]);
+        emit currentDatabaseChanged();
     }
 }
 
-// Метод для добавления нового метода в базу данных
-void SettingsHandler::addMethod(const QString &databaseName, const QString &methodName, const QString &endpoint) {
-    if (m_databases.contains(databaseName)) { // Проверка, существует ли база данных с таким именем
-        Method method = {methodName, endpoint}; // Создание нового метода
-        m_methods[databaseName].append(method); // Добавление метода в QMap методов
-        saveSettings(); // Сохранение настроек
-        if (databaseName == m_currentDatabase.name) {
-            emit currentMethodChanged();; // Сигнал о том, что текущая база данных изменена
-        }
-    }
-}
-
-// Метод для редактирования существующего метода в базе данных
-void SettingsHandler::editMethod(const QString &databaseName, const QString &methodName, const QString &newEndpoint) {
-    if (m_databases.contains(databaseName) && m_methods.contains(databaseName)) { // Проверка, существует ли база данных и методы с таким именем
-        for (auto &method : m_methods[databaseName]) { // Проход по всем методам базы данных
-            if (method.name == methodName) { // Проверка, совпадает ли имя метода
-                method.endpoint = newEndpoint; // Обновление конечной точки метода
-                saveSettings(); // Сохранение настроек
-                if (databaseName == m_currentDatabase.name) {
-                    emit currentDatabaseChanged(); // Сигнал о том, что текущая база данных изменена
-                }
+// Метод для установки текущего метода по имени
+void SettingsHandler::setMethod(const QString &name) {
+    if (m_methods.contains(m_currentDatabase.name)) {
+        const auto &methods = m_methods[m_currentDatabase.name];
+        for (const auto &method : methods) {
+            if (method.name == name) {
+                setCurrentMethod(method);
+                emit currentMethodChanged();
                 break;
             }
         }
+    }
+}
+
+// Метод для добавления или редактирования базы данных
+void SettingsHandler::editDatabase(const QString &name, const QString &login, const QString &password, const QString &url) {
+    bool isNewDatabase = !m_databases.contains(name);
+
+    if (isNewDatabase) {
+        Database db = {name, url, login, password};
+        m_databases[name] = db;
+        m_databaseNames.append(name);
+    } else {
+        Database &db = m_databases[name];
+        db.url = url;
+        db.login = login;
+        db.password = password;
+    }
+
+    saveDatabases();
+    emit databasesChanged();
+
+    if (name == m_currentDatabase.name) {
+        setCurrentDatabase(m_databases[name]);
+        emit currentDatabaseChanged();
+    }
+}
+
+// Метод для добавления или редактирования метода
+void SettingsHandler::editMethod(const QString &databaseName, const QString &methodName, const QString &endpoint) {
+    if (m_databases.contains(databaseName)) {
+        bool isNewMethod = true;
+        auto &methods = m_methods[databaseName];
+
+        for (auto &method : methods) {
+            if (method.name == methodName) {
+                method.endpoint = endpoint;
+                isNewMethod = false;
+                setCurrentMethod(method);
+                break;
+            }
+        }
+
+        if (isNewMethod) {
+            Method method = {methodName, endpoint};
+            methods.append(method);
+            setCurrentMethod(method);
+        }
+
+        saveMethods();
+        emit currentMethodChanged();
     }
 }
 
@@ -116,8 +138,8 @@ void SettingsHandler::editMethod(const QString &databaseName, const QString &met
 QStringList SettingsHandler::methodNames() const {
     QStringList methodNames;
     if (m_methods.contains(m_currentDatabase.name)) {
-        for (const auto &method : m_methods[m_currentDatabase.name]) { // Проход по всем методам текущей базы данных
-            methodNames.append(method.name); // Добавление имени метода в список
+        for (const auto &method : m_methods[m_currentDatabase.name]) {
+            methodNames.append(method.name);
         }
     }
     return methodNames;
@@ -126,41 +148,42 @@ QStringList SettingsHandler::methodNames() const {
 // Метод для загрузки настроек из файлов
 void SettingsHandler::loadSettings() {
     // Загрузка баз данных
-    QString basesFilePath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/Bases.bin"; // Определение пути к файлу баз данных
+    QString basesFilePath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/Bases.bin";
     QFile basesFile(basesFilePath);
-    if (basesFile.open(QIODevice::ReadOnly)) { // Открытие файла в режиме чтения
+    if (basesFile.open(QIODevice::ReadOnly)) {
         QDataStream in(&basesFile);
-        in >> m_databases >> m_databaseNames >> m_currentDatabase; // Чтение данных из файла
+        in >> m_databases >> m_databaseNames >> m_currentDatabase;
         basesFile.close();
     }
 
     // Загрузка методов
-    QString methodsFilePath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/Methods.bin"; // Определение пути к файлу методов
+    QString methodsFilePath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/Methods.bin";
     QFile methodsFile(methodsFilePath);
-    if (methodsFile.open(QIODevice::ReadOnly)) { // Открытие файла в режиме чтения
+    if (methodsFile.open(QIODevice::ReadOnly)) {
         QDataStream in(&methodsFile);
-        in >> m_methods >> m_currentMethod; // Чтение данных из файла
+        in >> m_methods >> m_currentMethod;
         methodsFile.close();
     }
 }
 
-// Метод для сохранения настроек в файлы
-void SettingsHandler::saveSettings() {
-    // Сохранение баз данных
-    QString basesFilePath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/Bases.bin"; // Определение пути к файлу баз данных
+// Метод для сохранения баз данных
+void SettingsHandler::saveDatabases() {
+    QString basesFilePath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/Bases.bin";
     QFile basesFile(basesFilePath);
-    if (basesFile.open(QIODevice::WriteOnly)) { // Открытие файла в режиме записи
+    if (basesFile.open(QIODevice::WriteOnly)) {
         QDataStream out(&basesFile);
-        out << m_databases << m_databaseNames << m_currentDatabase; // Запись данных в файл
+        out << m_databases << m_databaseNames << m_currentDatabase;
         basesFile.close();
     }
+}
 
-    // Сохранение методов
-    QString methodsFilePath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/Methods.bin"; // Определение пути к файлу методов
+// Метод для сохранения методов
+void SettingsHandler::saveMethods() {
+    QString methodsFilePath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/Methods.bin";
     QFile methodsFile(methodsFilePath);
-    if (methodsFile.open(QIODevice::WriteOnly)) { // Открытие файла в режиме записи
+    if (methodsFile.open(QIODevice::WriteOnly)) {
         QDataStream out(&methodsFile);
-        out << m_methods << m_currentMethod; // Запись данных в файл
+        out << m_methods << m_currentMethod;
         methodsFile.close();
     }
 }

@@ -22,6 +22,7 @@ struct Database {
     QString password;
 };
 
+// Перегрузка операторов для сериализации и десериализации
 QDataStream &operator<<(QDataStream &out, const Method &method);
 QDataStream &operator>>(QDataStream &in, Method &method);
 
@@ -38,19 +39,18 @@ class SettingsHandler : public QObject
 public:
     explicit SettingsHandler(QObject *parent = nullptr);
 
-    QStringList databaseNames() const;
-    Database currentDatabase() const;
+
+    Database currentDatabase() const; // ?
+    Method currentMethod() const; // ?
     void setCurrentDatabase(const Database &db);
-    Method currentMethod() const;
     void setCurrentMethod(const Method &method);
-    void setupSettings();
 
-    Q_INVOKABLE void addDatabase(const QString &name, const QString &login, const QString &password, const QString &url);
+    Q_INVOKABLE void setDatabase(const QString &name);
+    Q_INVOKABLE void setMethod(const QString &name);
     Q_INVOKABLE void editDatabase(const QString &name, const QString &login, const QString &password, const QString &url);
-    Q_INVOKABLE void addMethod(const QString &databaseName, const QString &methodName, const QString &endpoint);
-    Q_INVOKABLE void editMethod(const QString &databaseName, const QString &methodName, const QString &newEndpoint);
-    Q_INVOKABLE QStringList methodNames() const;
-
+    Q_INVOKABLE void editMethod(const QString &databaseName, const QString &methodName, const QString &endpoint);
+    Q_INVOKABLE QStringList methodNames() const; // OK, это надо чтобы список в модель ComboBox загружать
+    Q_INVOKABLE QStringList databaseNames() const; //
 signals:
     void databasesChanged();
     void currentDatabaseChanged();
@@ -64,7 +64,8 @@ private:
     Method m_currentMethod;
 
     void loadSettings();
-    void saveSettings();
+    void saveDatabases();
+    void saveMethods();
 };
 
 #endif // SETTINGSHANDLER_H

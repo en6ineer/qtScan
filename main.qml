@@ -439,17 +439,21 @@ ApplicationWindow {
                        Column {
                            width: parent.width
                            spacing: 10
+
                            Label {
                                text: "Название базы:"
                            }
+
                            TextField {
                                width: parent.width
                                id: baseName
                                text: "Склад"
                            }
+
                            Label {
                                text: "Корневой URL:"
                            }
+
                            TextField {
                                width: parent.width
                                id: rootUrl
@@ -459,6 +463,7 @@ ApplicationWindow {
                            Label {
                                text: "Логин:"
                            }
+
                            TextField {
                                width: parent.width
                                id: login
@@ -468,6 +473,7 @@ ApplicationWindow {
                            Label {
                                text: "Пароль:"
                            }
+
                            TextField {
                                width: parent.width
                                id: pass
@@ -478,6 +484,7 @@ ApplicationWindow {
                            Row {
                                width: parent.width
                                spacing: 10
+
                                Button {
                                    text: "Удалить"
                                    onClicked: {
@@ -495,9 +502,9 @@ ApplicationWindow {
                                Button {
                                    text: "ОК"
                                    onClicked: {
-                                       if (true) { //Если поля заполнены тогда добавляем/изменяем метод
-                                       settingsHandler.addDatabase(baseName.text, login.text, pass.text, rootUrl.text)
-                                       }
+                                       //if (true) { //Если поля заполнены тогда добавляем/изменяем метод
+                                       settingsHandler.editDatabase(baseName.text, login.text, pass.text, rootUrl.text)
+                                       //}
                                        editBase.close()
                                    }
                                }
@@ -516,23 +523,26 @@ ApplicationWindow {
                        Column {
                            width: parent.width
                            spacing: 10
+
                            Label {
                                text: "Название метода:"
                            }
+
                            TextField {
                                width: parent.width
                                id: methodName
                                text: "Приходный ордер"
                            }
+
                            Label {
                                text: "URL метода:"
                            }
+
                            TextField {
                                width: parent.width
                                id: url
                                text: "order"
                            }
-
 
                            Row {
                                width: parent.width
@@ -554,9 +564,9 @@ ApplicationWindow {
                                Button {
                                    text: "ОК"
                                    onClicked: {
-                                       if (true) { //Если поля заполнены тогда добавляем/изменяем метод
-                                        settingsHandler.addMethod(listBases.currentText, methodName.text, url.text)
-                                       }
+                                      // if (true) { //Если поля заполнены тогда добавляем/изменяем метод
+                                        settingsHandler.editMethod(listBases.currentText, methodName.text, url.text)
+                                      // }
                                        editMethod.close()
                                    }
                                }
@@ -576,7 +586,7 @@ ApplicationWindow {
                            anchors.margins: 20
                            anchors.leftMargin: 20
                             width: parent.width
-                            spacing: 5
+                            spacing: 2
 
                               Label {
                                   text: "Список баз для подключения:"
@@ -589,7 +599,7 @@ ApplicationWindow {
                                   width: parent.width
                                   model: settingsHandler.databaseNames
                                   onCurrentIndexChanged: {
-                                      settingsHandler.setCurrentDatabase(settingsHandler.databaseNames[listBases.currentIndex])
+                                      settingsHandler.setDatabase(listBases.currentText)
                                   }
                               }
 
@@ -611,7 +621,7 @@ ApplicationWindow {
                                   width: parent.width
                                   model: settingsHandler.methodNames()
                                   onCurrentIndexChanged: {
-                                      settingsHandler.setCurrentMethod(settingsHandler.methodNames()[listMethods.currentIndex])
+                                      settingsHandler.setMethod(listMethods.currentText)
                                   }
                               }
 
@@ -622,8 +632,6 @@ ApplicationWindow {
                                      editMethod.open()
                               }
                           }
-
-
 
                            Button {
                                text: "Очистить список"
@@ -641,16 +649,14 @@ ApplicationWindow {
                                title: "Подтверждение"
                                standardButtons: Dialog.Yes | Dialog.No
                                Column {
-                                       width: parent.width - 10 //  ColumnLayout {
-                                       //                                   anchors.fill: parent
+                                       width: parent.width - 10
                                        spacing: 10
                                        Text {
                                            width: parent.width
                                            text: "Вы уверены, что хотите очистить список штрихкодов?"
                                            wrapMode: Text.Wrap
-                                            //Layout.fillWidth: true
-                                                           // Если нужно задать максимальную ширину текста, можно использовать width:
-                                                           // width: myDialog.width * 0.9
+                                           // Если нужно задать максимальную ширину текста, можно использовать width:
+                                           // width: myDialog.width * 0.9
                                        }
                                    }
 
@@ -668,21 +674,13 @@ ApplicationWindow {
                            //     wrapMode: TextEdit.Wrap
                            // }
 
-                           // Component.onCompleted: {
-                           //    // urlField.text = constUrl
-                           //     loginField.text = constLogin
-                           //     passwordField.text = constPass
-                           //     licenseKeyField.text = constKey
-                           // }
 
-
-
-                       Connections {
-                           target: httpClient
-                           function onRequestFinished(response) {
-                               responseText.text = response;
-                           }
-                       }
+                       // Connections {
+                       //     target: httpClient
+                       //     function onRequestFinished(response) {
+                       //         responseText.text = response;
+                       //     }
+                       // }
 
             }//page
         }
