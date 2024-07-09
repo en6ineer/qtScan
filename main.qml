@@ -1,6 +1,3 @@
-//My notes:
-// Before build apk need replace fontsize in all elements
-
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
@@ -9,12 +6,6 @@ import Qt.labs.qmlmodels 1.0
 ApplicationWindow {
     visible: true
     title: "1Sklad"
-
-    property string constUrl: ""
-    property string constLogin: ""
-    property string constPass: ""
-    property string constKey: ""
-
 
 
     // Диалоговое окно подтверждения закрытия
@@ -64,7 +55,6 @@ ApplicationWindow {
         initialItem: secondPage //mainpage
 
 
-
         Component {
             id: secondPage
             Page {
@@ -74,9 +64,6 @@ ApplicationWindow {
                     anchors.horizontalCenter:  parent.horizontalCenter
                     font.pixelSize: 32
                 }
-
-                //Необходимо сделать:
-                //8) Проверить с изменением высоты квадрата если штрихкод сильно большой.
 
 
                 TextField {
@@ -155,7 +142,7 @@ ApplicationWindow {
                         // Основная часть с таблицей и вертикальным заголовком
                         Rectangle {
                             width: parent.width
-                            height: parent.height - 60  // Учитываем высоту горизонтального заголовка
+                            height: parent.height - 60
                             anchors.top: parent.top
                             anchors.topMargin: 60
 
@@ -190,7 +177,7 @@ ApplicationWindow {
                             TableView {
                                 id: tableView
                                 anchors.fill: parent
-                                anchors.leftMargin: 75  //80 Учитываем ширину вертикального заголовка
+                                anchors.leftMargin: 75
                                 model: barcodesData
                                 rowSpacing: 10
                                 columnSpacing: 20
@@ -203,7 +190,7 @@ ApplicationWindow {
 
                                     Text {
                                         anchors.centerIn: parent
-                                        text: {                                    
+                                        text: {
                                             wrapMode: Text.Wrap
                                             if (column === 0) {
                                                 return model.barcode
@@ -260,7 +247,7 @@ ApplicationWindow {
                         TextField {
                             width: parent.width
                             id: barcodeField
-                            text: editBarcode//"Работает как мне надо"
+                            text: editBarcode
                         }
                         Label {
                             text: "Количество"
@@ -322,7 +309,6 @@ ApplicationWindow {
                 Button {
                     text: "Добавить штрихкод"
                     scale: 2//3 //build
-                   // anchors.centerIn: parent
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.bottom: parent.bottom
                     anchors.bottomMargin: parent.height * 0.1
@@ -334,8 +320,6 @@ ApplicationWindow {
 
                 Button {
                     text: "Отправить в 1С"
-                    //scale: 2//3 //build
-                   // anchors.centerIn: parent
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.bottom: parent.bottom
                     anchors.bottomMargin: parent.height * 0.1
@@ -351,7 +335,6 @@ ApplicationWindow {
                         }
                     }
                 }
-
 
 
                 // Компонент для временного сообщения
@@ -444,73 +427,202 @@ ApplicationWindow {
                    }
 
 
-                ColumnLayout {
-                           anchors.fill: parent
-                           anchors.margins: 20
-                            //spacing: 5
+
+
+                   Dialog {
+                       id: editBase
+                       x: parent.width / 2 - width / 2
+                       y: 30
+                       // Тут наверное лучше сделать закреп выше центра, чтобы клавиатура не перекрывала.
+                       title: "Редактирование базы"
+
+                       Column {
+                           width: parent.width
+                           spacing: 10
                            Label {
-                               text: "Настройки программы"
-                               font.pixelSize: 28//32
-                               Layout.alignment: Qt.AlignHCenter
+                               text: "Название базы:"
+                           }
+                           TextField {
+                               width: parent.width
+                               id: baseName
+                               text: "Склад"
+                           }
+                           Label {
+                               text: "Корневой URL:"
+                           }
+                           TextField {
+                               width: parent.width
+                               id: rootUrl
+                               text: "http://rooturl/hc/docum"
                            }
 
+                           Label {
+                               text: "Логин:"
+                           }
                            TextField {
-                               id: urlField
-                               placeholderText: "URL"
-                               Layout.fillWidth: true
-                                //text: "http://192.168.1.136/Ihttp/ru_RU/hs/Request/docum"
-                               //text: "http://192.168.1.138//Bot/ru_RU/hs/bots/send"
-                               text:  "http://192.168.1.107:8080/sklad"
+                               width: parent.width
+                               id: login
+                               text: "Bot"
                            }
 
-                           TextField {
-                               id: loginField
-                               placeholderText: "Логин"
-                               Layout.fillWidth: true
-                              text: "bot"
+                           Label {
+                               text: "Пароль:"
                            }
-
                            TextField {
-                               id: passwordField
-                               placeholderText: "Пароль"
-                               echoMode: TextInput.Password
-                               Layout.fillWidth: true
+                               width: parent.width
+                               id: pass
                                text: "12345"
                            }
 
-                           TextField {
-                               id: licenseKeyField
-                               placeholderText: "Лицензионный ключ"
-                               Layout.fillWidth: true
-                           }
 
-
-
-                           Button {
-                               text: "Сохранить настройки"
-                               Layout.alignment: Qt.AlignHCenter
-                               onClicked: {
-                                   if(urlField.text == "" || loginField.text == "" || passwordField.text == ""){
-                                      showMessage("Заполните все поля!");
-                                   }else{
-                                    settingsHandler.saveSettings(urlField.text, loginField.text, passwordField.text, licenseKeyField.text)
-                                    showMessage("Настройки сохранены");
-                                       constUrl = urlField.text
-                                       constLogin = loginField.text
-                                       constPass = passwordField.text
-                                       constKey = licenseKeyField.text
-
-
-                                   // settingsHandler.saveSettings("http://192.168.1.138//Bot/ru_RU/hs/bots/send", "bot", "12345", "")
-                                   // showMessage("Настройки сохранены");
-                                   //    constUrl = "http://192.168.1.138//Bot/ru_RU/hs/bots/send"
-                                   //    constLogin =  "bot"
-                                   //    constPass = "12345"
-                                   //    constKey = ""
-
+                           Row {
+                               width: parent.width
+                               spacing: 10
+                               Button {
+                                   text: "Удалить"
+                                   onClicked: {
+                                       editBase.close()
                                    }
                                }
+
+                               Button {
+                                   text: "Отмена"
+                                   onClicked: {
+                                       editBase.close()
+                                   }
+                               }
+
+                               Button {
+                                   text: "ОК"
+                                   onClicked: {
+                                       if (true) { //Если поля заполнены тогда добавляем/изменяем метод
+                                       settingsHandler.addDatabase(baseName.text, login.text, pass.text, rootUrl.text)
+                                       }
+                                       editBase.close()
+                                   }
+                               }
+
+                           }//Row
+                       }//Column
+                   }//DialogBase
+
+                   Dialog {
+                       id: editMethod
+                       x: parent.width / 2 - width / 2 // центр по горизонтали
+                       y: 30
+                       // Тут наверное лучше сделать закреп выше центра, чтобы клавиатура не перекрывала.
+                       title: "Редактирование базы"
+
+                       Column {
+                           width: parent.width
+                           spacing: 10
+                           Label {
+                               text: "Название метода:"
                            }
+                           TextField {
+                               width: parent.width
+                               id: methodName
+                               text: "Приходный ордер"
+                           }
+                           Label {
+                               text: "URL метода:"
+                           }
+                           TextField {
+                               width: parent.width
+                               id: url
+                               text: "order"
+                           }
+
+
+                           Row {
+                               width: parent.width
+                               spacing: 10
+                               Button {
+                                   text: "Удалить"
+                                   onClicked: {
+                                       editMethod.close()
+                                   }
+                               }
+
+                               Button {
+                                   text: "Отмена"
+                                   onClicked: {
+                                       editMethod.close()
+                                   }
+                               }
+
+                               Button {
+                                   text: "ОК"
+                                   onClicked: {
+                                       if (true) { //Если поля заполнены тогда добавляем/изменяем метод
+                                        settingsHandler.addMethod(listBases.currentText, methodName.text, url.text)
+                                       }
+                                       editMethod.close()
+                                   }
+                               }
+
+                           }//Row
+                       }//Column
+                   }//DialogBase
+
+                   Label {
+                          text: "Настройки программы"
+                          font.pixelSize: 28
+                          anchors.horizontalCenter:  parent.horizontalCenter
+                      }
+
+                    ColumnLayout {
+                           anchors.fill: parent
+                           anchors.margins: 20
+                           anchors.leftMargin: 20
+                            width: parent.width
+                            spacing: 5
+
+                              Label {
+                                  text: "Список баз для подключения:"
+                                  font.pixelSize: 26
+                              }
+
+
+                              ComboBox {
+                                  id: listBases
+                                  width: parent.width
+                                  model: settingsHandler.databaseNames
+                                  onCurrentIndexChanged: {
+                                      settingsHandler.setCurrentDatabase(settingsHandler.databaseNames[listBases.currentIndex])
+                                  }
+                              }
+
+                              Button {
+                                  text: "Редактировать базу"
+                                  onClicked: {
+                                     editBase.open()
+                                  }
+                              }
+
+                              Label {
+                                  text: "Список методов"
+                                  font.pixelSize: 26
+                              }
+
+
+                              ComboBox {
+                                  id: listMethods
+                                  width: parent.width
+                                  model: settingsHandler.methodNames()
+                                  onCurrentIndexChanged: {
+                                      settingsHandler.setCurrentMethod(settingsHandler.methodNames()[listMethods.currentIndex])
+                                  }
+                              }
+
+
+                              Button {
+                                  text: "Редактировать метод"
+                                  onClicked: {
+                                     editMethod.open()
+                              }
+                          }
+
 
 
                            Button {
@@ -520,6 +632,8 @@ ApplicationWindow {
                                    confirmClearDialog.open()
                                }
                            }
+
+                    }//ColumnLayout
 
                            Dialog {
                                anchors.centerIn: parent
@@ -545,23 +659,23 @@ ApplicationWindow {
                                    }
                            }
 
-                           TextArea {
-                               id: responseText
-                               Layout.fillWidth: true
-                               Layout.fillHeight: true
-                               readOnly: true
-                               placeholderText: "Debug log:"
-                               wrapMode: TextEdit.Wrap
-                           }
+                           // TextArea {
+                           //     id: responseText
+                           //     Layout.fillWidth: true
+                           //     Layout.fillHeight: true
+                           //     readOnly: true
+                           //     placeholderText: "Debug log:"
+                           //     wrapMode: TextEdit.Wrap
+                           // }
 
-                           Component.onCompleted: {
-                              // urlField.text = constUrl
-                               loginField.text = constLogin
-                               passwordField.text = constPass
-                               licenseKeyField.text = constKey
-                           }
+                           // Component.onCompleted: {
+                           //    // urlField.text = constUrl
+                           //     loginField.text = constLogin
+                           //     passwordField.text = constPass
+                           //     licenseKeyField.text = constKey
+                           // }
 
-                       }//ColumnLayout
+
 
                        Connections {
                            target: httpClient
@@ -612,19 +726,18 @@ ApplicationWindow {
        }
 
 
-    Component.onCompleted: {
-        // Загрузка и отображение сохраненных настроек
-        var savedSettings = settingsHandler.loadSettings();
-         if(savedSettings === ""){
-             showMessage("Не обнаружены настройки!")
-         }else{
-             var settingsList = savedSettings.split("\n");
-             constUrl = settingsList[0];
-             constLogin = settingsList[1];
-             constPass = settingsList[2];
-             constKey = settingsList[3];
-         }
-    }
+    // Component.onCompleted: {
+    //     var savedSettings = settingsHandler.loadSettings();
+    //      if(savedSettings === ""){
+    //          showMessage("Не обнаружены настройки!")
+    //      }else{
+    //          var settingsList = savedSettings.split("\n");
+    //          constUrl = settingsList[0];
+    //          constLogin = settingsList[1];
+    //          constPass = settingsList[2];
+    //          constKey = settingsList[3];
+    //      }
+    // }
 
 
     Rectangle {
@@ -637,24 +750,6 @@ ApplicationWindow {
         RowLayout {
             anchors.fill: parent
             anchors.margins: 5
-
-
-            //Кажется первая страница будет не нужна, надо будет убрать её из проекта
-            // Button {
-            //     id: but1
-            //     text: "Главная"
-            //     Layout.fillWidth: true
-            //     onClicked: stackView.replace(mainPage)
-            //     font.pixelSize: 10//48//24
-            //     Layout.preferredWidth: parent.width * 0.30
-            //     Layout.preferredHeight: parent.width * 0.10
-            //     background: Rectangle {
-            //                     color: but1.pressed ? "lightblue" : "lightgray"
-            //                     border.color: "black"
-            //                     border.width: 1
-            //                     radius: 0
-            //                 }
-            // }
 
             Button {
                 id: but2

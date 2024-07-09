@@ -3,46 +3,68 @@
 
 #include <QObject>
 #include <QSettings>
+#include <QMap>
+#include <QVector>
+#include <QString>
+#include <QStringList>
+
+// Структура для хранения данных метода
+struct Method {
+    QString name;
+    QString endpoint;
+};
+
+// Структура для хранения данных базы данных
+struct Database {
+    QString name;
+    QString url;
+    QString login;
+    QString password;
+};
+
+QDataStream &operator<<(QDataStream &out, const Method &method);
+QDataStream &operator>>(QDataStream &in, Method &method);
+
+QDataStream &operator<<(QDataStream &out, const Database &db);
+QDataStream &operator>>(QDataStream &in, Database &db);
 
 class SettingsHandler : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString url READ url WRITE setUrl NOTIFY urlChanged)
-    Q_PROPERTY(QString login READ login WRITE setLogin NOTIFY loginChanged)
-    Q_PROPERTY(QString password READ password WRITE setPassword NOTIFY passwordChanged)
-    Q_PROPERTY(QString licenseKey READ licenseKey WRITE setLicenseKey NOTIFY licenseKeyChanged)
+    Q_PROPERTY(QStringList databaseNames READ databaseNames NOTIFY databasesChanged)
+    Q_PROPERTY(Database currentDatabase READ currentDatabase WRITE setCurrentDatabase NOTIFY currentDatabaseChanged)
+    Q_PROPERTY(Method currentMethod READ currentMethod WRITE setCurrentMethod NOTIFY currentMethodChanged)
 
 public:
-    explicit SettingsHandler(QObject *parent = nullptr)
-        : QObject(parent)
-    {
-        setupSettings(); // Вызов метода для установки начальных значений свойств
-    }
+    explicit SettingsHandler(QObject *parent = nullptr);
 
-    QString url() const { return m_url; }
-    QString login() const { return m_login; }
-    QString password() const { return m_password; }
-    QString licenseKey() const { return m_licenseKey; }
-
-public slots:
-    void setUrl(const QString &url) { m_url = url; emit urlChanged(); }
-    void setLogin(const QString &login) { m_login = login; emit loginChanged(); }
-    void setPassword(const QString &password) { m_password = password; emit passwordChanged(); }
-    void setLicenseKey(const QString &licenseKey) { m_licenseKey = licenseKey; emit licenseKeyChanged(); }
-    Q_INVOKABLE void saveSettings(const QString &url, const QString &login, const QString &password, const QString &licenseKey);
-    Q_INVOKABLE QString loadSettings();
+    QStringList databaseNames() const;
+    Database currentDatabase() const;
+    void setCurrentDatabase(const Database &db);
+    Method currentMethod() const;
+    void setCurrentMethod(const Method &method);
     void setupSettings();
+
+    Q_INVOKABLE void addDatabase(const QString &name, const QString &login, const QString &password, const QString &url);
+    Q_INVOKABLE void editDatabase(const QString &name, const QString &login, const QString &password, const QString &url);
+    Q_INVOKABLE void addMethod(const QString &databaseName, const QString &methodName, const QString &endpoint);
+    Q_INVOKABLE void editMethod(const QString &databaseName, const QString &methodName, const QString &newEndpoint);
+    Q_INVOKABLE QStringList methodNames() const;
+
 signals:
-    void urlChanged();
-    void loginChanged();
-    void passwordChanged();
-    void licenseKeyChanged();
+    void databasesChanged();
+    void currentDatabaseChanged();
+    void currentMethodChanged();
 
 private:
-    QString m_url;
-    QString m_login;
-    QString m_password;
-    QString m_licenseKey;
+    QMap<QString, Database> m_databases;
+    QMap<QString, QVector<Method>> m_methods;
+    QStringList m_databaseNames;
+    Database m_currentDatabase;
+    Method m_currentMethod;
+
+    void loadSettings();
+    void saveSettings();
 };
 
 #endif // SETTINGSHANDLER_H
