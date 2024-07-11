@@ -566,23 +566,36 @@ ApplicationWindow {
                                }
                            }
 
+
+
+
                            Button {
                                    text: "Показать базы данных"
                                    onClicked: {
                                        //textArea.text = settingsHandler.getDatabaseNames().join("\n");
-                                       textArea.text = settingsHandler.getPath().join("\n");
+                                       // textArea.text = settingsHandler.getPath().join("\n");
+                                        settingsHandler.foo()
                                    }
                                }
 
 
-                               TextArea {
-                                   id: textArea
-                                   Layout.fillWidth: true
-                                   Layout.fillHeight: true
-                                   readOnly: true
-                                   placeholderText: "Вывод информации"
-                                   wrapMode: TextEdit.Wrap
-                               }
+                           ScrollView {
+                                       Layout.fillWidth: true
+                                       Layout.fillHeight: true
+                                       TextArea {
+                                           id: textArea
+                                           readOnly: true
+                                           placeholderText: "Вывод информации"
+                                           wrapMode: TextEdit.Wrap
+                                       }
+                                   }
+
+                                  Connections {
+                                      target: settingsHandler
+                                      onLogMessagesChanged: {
+                                          textArea.append(settingsHandler.logMessages);
+                                      }
+                                  }
 
 
 

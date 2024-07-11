@@ -10,14 +10,29 @@ SettingsHandler::SettingsHandler(QObject *parent)
     loadSettings();
 }
 
+QString SettingsHandler::logMessages() const {
+    return m_logMessages;
+}
+
+void SettingsHandler::appendLog(const QString &message) {
+    m_logMessages += message + "\n";
+    emit logMessagesChanged();
+}
+
 // Метод для получения списка имен баз данных
-QStringList SettingsHandler::getDatabaseNames() const {
+QStringList SettingsHandler::getDatabaseNames()  {
+
     return m_databaseNames;
+}
+
+void SettingsHandler::foo(){
+    loadSettings();
+    saveDatabases();
 }
 
 // Метод для получения списка имен баз данных
 QString SettingsHandler::getPath() const {
-     QString filePath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/settings.bin";
+    QString filePath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/settings.bin";
     return filePath;
 }
 
@@ -37,6 +52,7 @@ void SettingsHandler::setDatabase(const QString &name) {
     if (m_databases.contains(name)) {
         setCurrentDatabase(m_databases[name]);
         emit currentDatabaseChanged();
+        appendLog("Database set: " + name);
     }
 }
 
@@ -62,56 +78,74 @@ void SettingsHandler::editDatabase(const QString &name, const QString &login, co
 
     saveDatabases();
     emit databasesChanged();
+    appendLog("Database edited: " + name);
 }
 
-// Метод для загрузки настроек из файлов
-void SettingsHandler::loadSettings() {
-    // Загрузка баз данных
-    QString filePath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/settings.bin";
+
+void SettingsHandler::saveDatabases() {
+    QString filePath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/settings.txt";
+    appendLog("Путь сохранения: " + filePath);
     QFile basesFile(filePath);
-    if (basesFile.open(QIODevice::ReadOnly)) {
-        QDataStream in(&basesFile);
+    if (basesFile.open(QIODevice::WriteOnly)) {
+        QTextStream out(&basesFile);
 
-        // Загрузка списка имен баз данных
-        int dbCount;
-        in >> dbCount;
-        m_databaseNames.clear();
-        for (int i = 0; i < dbCount; ++i) {
-            QString dbName;
-            in >> dbName;
-            m_databaseNames.append(dbName);
-
-            Database db;
-            in >> db.name >> db.url >> db.login >> db.password;
-            m_databases.insert(dbName, db);
+        for (const QString &dbName : m_databaseNames) {
+            appendLog("Я в цикле сохранения");
+            const Database &db = m_databases[dbName];
+            out << db.name << Qt::endl;
+            out << db.url << Qt::endl;
+            out << db.login << Qt::endl;
+            out << db.password << Qt::endl;
+            appendLog("Сохранены данные базы: " + db.name);
         }
 
-        // Загрузка текущей базы данных
-        in >> m_currentDatabase.name >> m_currentDatabase.url >> m_currentDatabase.login >> m_currentDatabase.password;
+        out << m_currentDatabase.name << Qt::endl;
+        out << m_currentDatabase.url << Qt::endl;
+        out << m_currentDatabase.login << Qt::endl;
+        out << m_currentDatabase.password << Qt::endl;
 
         basesFile.close();
-        emit databasesChanged();
+        appendLog("Настройки сохранены\n");
     }
 }
 
-// Метод для сохранения баз данных
-void SettingsHandler::saveDatabases() {
-    QString filePath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/settings.bin";
-    QFile basesFile(filePath);
-    if (basesFile.open(QIODevice::WriteOnly)) {
-        QDataStream out(&basesFile);
 
-        // Сохранение списка имен баз данных
-        out << m_databaseNames.size();
-        for (const QString &dbName : m_databaseNames) {
-            out << dbName;
-            const Database &db = m_databases[dbName];
-            out << db.name << db.url << db.login << db.password;
+
+void SettingsHandler::loadSettings() {
+    QString filePath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/settings.txt";
+    appendLog("Путь загрузки: " + filePath);
+    QFile basesFile(filePath);
+    if (basesFile.open(QIODevice::ReadOnly)) {
+        appendLog("Файл существует!");
+        QTextStream in(&basesFile);
+
+        m_databaseNames.clear();
+        while (!in.atEnd()) {
+            appendLog("Зашел в цикл!");
+            QString dbName = in.readLine();
+            if (dbName.isEmpty()) {
+                appendLog("файл пуст!!");
+                break;
+            }
+
+            Database db;
+            db.name = dbName;
+            db.url = in.readLine();
+            db.login = in.readLine();
+            db.password = in.readLine();
+
+            m_databaseNames.append(db.name);
+            m_databases.insert(db.name, db);
+            appendLog("Загружена база данных: " + db.name);
         }
 
-        // Сохранение текущей базы данных
-        out << m_currentDatabase.name << m_currentDatabase.url << m_currentDatabase.login << m_currentDatabase.password;
+        m_currentDatabase.name = in.readLine();
+        m_currentDatabase.url = in.readLine();
+        m_currentDatabase.login = in.readLine();
+        m_currentDatabase.password = in.readLine();
 
         basesFile.close();
+        emit databasesChanged();
+        appendLog("Настройки загружены\n");
     }
 }
