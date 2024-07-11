@@ -15,6 +15,12 @@ QStringList SettingsHandler::getDatabaseNames() const {
     return m_databaseNames;
 }
 
+// Метод для получения списка имен баз данных
+QString SettingsHandler::getPath() const {
+     QString filePath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/settings.bin";
+    return filePath;
+}
+
 // Метод для получения текущей базы данных
 Database SettingsHandler::currentDatabase() const {
     return m_currentDatabase;
@@ -26,37 +32,11 @@ void SettingsHandler::setCurrentDatabase(const Database &db) {
     emit currentDatabaseChanged();
 }
 
-// Метод для получения текущего метода
-Method SettingsHandler::currentMethod() const {
-    return m_currentMethod;
-}
-
-// Метод для установки текущего метода
-void SettingsHandler::setCurrentMethod(const Method &method) {
-    m_currentMethod = method;
-    emit currentMethodChanged();
-}
-
-
 // Метод для установки текущей базы данных по имени
 void SettingsHandler::setDatabase(const QString &name) {
     if (m_databases.contains(name)) {
         setCurrentDatabase(m_databases[name]);
         emit currentDatabaseChanged();
-    }
-}
-
-// Метод для установки текущего метода по имени
-void SettingsHandler::setMethod(const QString &name) {
-    if (m_methods.contains(m_currentDatabase.name)) {
-        const auto &methods = m_methods[m_currentDatabase.name];
-        for (const auto &method : methods) {
-            if (method.name == name) {
-                setCurrentMethod(method);
-                emit currentMethodChanged();
-                break;
-            }
-        }
     }
 }
 
@@ -84,53 +64,11 @@ void SettingsHandler::editDatabase(const QString &name, const QString &login, co
     emit databasesChanged();
 }
 
-// Метод для добавления или редактирования метода
-void SettingsHandler::editMethod(const QString &databaseName, const QString &methodName, const QString &endpoint) {
-    if (m_databases.contains(databaseName)) {
-        bool isNewMethod = true;
-        auto &methods = m_methods[databaseName];
-
-        for (auto &method : methods) {
-            if (method.name == methodName) {
-                method.endpoint = endpoint;
-                isNewMethod = false;
-                setCurrentMethod(method);
-                break;
-            }
-        }
-
-        if (isNewMethod) {
-            Method method = {methodName, endpoint};
-            methods.append(method);
-            setCurrentMethod(method);
-        }
-
-        saveMethods();
-        emit currentMethodChanged();
-        emit methodsChanged();
-    }
-}
-
-// Метод для получения списка имен методов текущей базы данных
-QStringList SettingsHandler::getMethodNames() const {
-    QStringList methodNames;
-    if (m_methods.contains(m_currentDatabase.name)) {
-        for (const auto &method : m_methods[m_currentDatabase.name]) {
-            methodNames.append(method.name);
-        }
-    }
-    return methodNames;
-}
-
 // Метод для загрузки настроек из файлов
 void SettingsHandler::loadSettings() {
-
-     // QFile::remove(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/Bases.bin");
-     // QFile::remove(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/Methods.bin");
-
     // Загрузка баз данных
-    QString basesFilePath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/Bases.bin";
-    QFile basesFile(basesFilePath);
+    QString filePath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/settings.bin";
+    QFile basesFile(filePath);
     if (basesFile.open(QIODevice::ReadOnly)) {
         QDataStream in(&basesFile);
 
@@ -154,33 +92,12 @@ void SettingsHandler::loadSettings() {
         basesFile.close();
         emit databasesChanged();
     }
-
-    // Загрузка методов
-    QString methodsFilePath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/Methods.bin";
-    QFile methodsFile(methodsFilePath);
-    if (methodsFile.open(QIODevice::ReadOnly)) {
-        QDataStream in(&methodsFile);
-
-        int methodCount;
-        in >> methodCount;
-        m_methods.clear();
-        for (int i = 0; i < methodCount; ++i) {
-            QString dbName, methodName, endpoint;
-            in >> dbName >> methodName >> endpoint;
-            m_methods[dbName].append({ methodName, endpoint });
-        }
-
-        in >> m_currentMethod.name >> m_currentMethod.endpoint;
-
-        methodsFile.close();
-        emit methodsChanged();
-    }
 }
 
 // Метод для сохранения баз данных
 void SettingsHandler::saveDatabases() {
-    QString basesFilePath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/Bases.bin";
-    QFile basesFile(basesFilePath);
+    QString filePath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/settings.bin";
+    QFile basesFile(filePath);
     if (basesFile.open(QIODevice::WriteOnly)) {
         QDataStream out(&basesFile);
 
@@ -198,29 +115,3 @@ void SettingsHandler::saveDatabases() {
         basesFile.close();
     }
 }
-
-// Метод для сохранения методов
-void SettingsHandler::saveMethods() {
-    QString methodsFilePath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/Methods.bin";
-    QFile methodsFile(methodsFilePath);
-    if (methodsFile.open(QIODevice::WriteOnly)) {
-        QDataStream out(&methodsFile);
-
-        int methodCount = 0;
-        for (auto it = m_methods.cbegin(); it != m_methods.cend(); ++it) {
-            methodCount += it.value().size();
-        }
-        out << methodCount;
-
-        for (auto it = m_methods.cbegin(); it != m_methods.cend(); ++it) {
-            for (const Method &method : it.value()) {
-                out << it.key() << method.name << method.endpoint;
-            }
-        }
-
-        out << m_currentMethod.name << m_currentMethod.endpoint;
-
-        methodsFile.close();
-    }
-}
-

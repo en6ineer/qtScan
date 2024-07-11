@@ -513,76 +513,12 @@ ApplicationWindow {
                        }//Column
                    }//DialogBase
 
-                   Dialog {
-                       id: editMethod
-                       x: parent.width / 2 - width / 2 // центр по горизонтали
-                       y: 20
-
-                       // Тут наверное лучше сделать закреп выше центра, чтобы клавиатура не перекрывала.
-                       title: "Редактирование базы"
-
-                       Column {
-                           width: parent.width
-                           spacing: 10
-
-                           Label {
-                               text: "Название метода:"
-                           }
-
-                           TextField {
-                               width: parent.width
-                               id: methodName
-                               text: "Приходный ордер"
-                           }
-
-                           Label {
-                               text: "URL метода:"
-                           }
-
-                           TextField {
-                               width: parent.width
-                               id: url
-                               text: "order"
-                           }
-
-                           Row {
-                               width: parent.width
-                               spacing: 10
-                               Button {
-                                   text: "Удалить"
-                                   onClicked: {
-                                       editMethod.close()
-                                   }
-                               }
-
-                               Button {
-                                   text: "Отмена"
-                                   onClicked: {
-                                       editMethod.close()
-                                   }
-                               }
-
-                               Button {
-                                   text: "ОК"
-                                   onClicked: {
-                                      // if (true) { //Если поля заполнены тогда добавляем/изменяем метод
-                                        settingsHandler.editMethod(listBases.currentText, methodName.text, url.text)
-                                      // }
-                                       editMethod.close()
-                                   }
-                               }
-
-                           }//Row
-                       }//Column
-                   }//DialogBase
 
                    Label {
                           text: "Настройки программы"
                           font.pixelSize: 28
                           anchors.horizontalCenter:  parent.horizontalCenter
                       }
-
-
 
 
                     ColumnLayout {
@@ -598,7 +534,7 @@ ApplicationWindow {
                             //            }//ScrollView
 
                               Label {
-                                  text: "Список баз для подключения:"
+                                  text: "Список документов:"
                                   font.pixelSize: 26
                               }
 
@@ -606,6 +542,7 @@ ApplicationWindow {
                               ComboBox {
                                   id: listBases
                                   width: 250
+                                  implicitContentWidthPolicy: listBases.WidestText
                                   model: settingsHandler.databaseNames
                                   onCurrentIndexChanged: {
                                       settingsHandler.setDatabase(listBases.currentText)
@@ -613,34 +550,13 @@ ApplicationWindow {
                               }
 
                               Button {
-                                  text: "Редактировать базу"
+                                  text: "Редактировать"
                                   onClicked: {
                                      editBase.open()
                                   }
                               }
 
-                              Label {
-                                  text: "Список методов"
-                                  font.pixelSize: 26
-                              }
 
-
-                              ComboBox {
-                                  id: listMethods
-                                  width: parent.width
-                                  model: settingsHandler.methodNames
-                                  onCurrentIndexChanged: {
-                                      settingsHandler.setMethod(listMethods.currentText)
-                                  }
-                              }
-
-
-                              Button {
-                                  text: "Редактировать метод"
-                                  onClicked: {
-                                     editMethod.open()
-                              }
-                          }
 
                            Button {
                                text: "Очистить список"
@@ -653,16 +569,11 @@ ApplicationWindow {
                            Button {
                                    text: "Показать базы данных"
                                    onClicked: {
-                                       textArea.text = settingsHandler.getDatabaseNames().join("\n");
+                                       //textArea.text = settingsHandler.getDatabaseNames().join("\n");
+                                       textArea.text = settingsHandler.getPath().join("\n");
                                    }
                                }
 
-                               Button {
-                                   text: "Показать методы"
-                                   onClicked: {
-                                       textArea.text = settingsHandler.getMethodNames().join("\n");
-                                   }
-                               }
 
                                TextArea {
                                    id: textArea
