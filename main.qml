@@ -58,17 +58,11 @@ ApplicationWindow {
         Component {
             id: secondPage
             Page {
-                Label {
-                    id: workTable
-                    text: "Рабочий стол"
-                    anchors.horizontalCenter:  parent.horizontalCenter
-                    font.pixelSize: 32
-                }
 
 
                 TextField {
                     id: field
-                    y: 35
+                    y: 5
                     anchors.horizontalCenter:  parent.horizontalCenter
                     placeholderText: "Поле ввода:"
                     height: parent.height * 0.08
@@ -93,14 +87,31 @@ ApplicationWindow {
                 }
 
 
+                ComboBox {
+                    id: listBases2
+                    y: field.height + 25
+                    width: parent.width
+                    implicitContentWidthPolicy: ComboBox.ContentItemImplicitWidth
+                    model: settingsHandler.databaseNames
+                    onCurrentTextChanged: {
+                        settingsHandler.setDatabase(listBases.currentText)
+                    }
+
+                     Component.onCompleted: {
+                        listBases2.currentIndex = settingsHandler.getCurrentIndex();
+                     }
+
+
+                }
+
                 Rectangle {
                         width: parent.width
-                        height: parent.height * 0.7
+                        height: parent.height * 0.6 //0.7
                         color: "transparent"
                         border.color: "black"
                         border.width: 2
                         anchors.centerIn: parent
-                        //anchors.topMargin: 10
+                        anchors.topMargin: 200
 
 
                         // Горизонтальный заголовок
@@ -324,8 +335,8 @@ ApplicationWindow {
                     anchors.bottom: parent.bottom
                     anchors.bottomMargin: parent.height * 0.1
                     onClicked: {
-                        if(constUrl === "" || constLogin === "" || constPass === ""){
-                        showMessage("Не заданы настройки подключения!")
+                        if(listBases2.currentIndex == -1){
+                        showMessage("Не выбран документ!")
                         //тут же бахнем проверку на ключ лицензии.
                         }else if(barcodesData.rowCount() !== 0)
                         {
@@ -432,22 +443,36 @@ ApplicationWindow {
                    Dialog {
                        id: editBase
                        x: parent.width / 2 - width / 2
-                       y: 30
+                       y: 20
                        // Тут наверное лучше сделать закреп выше центра, чтобы клавиатура не перекрывала.
                        title: "Редактирование базы"
+
+                       onOpened: {
+                           var savedSettings = settingsHandler.getSettings();
+                                   if(savedSettings === ""){
+                                       showMessage("Не обнаружены настройки!")
+                                   }else{
+                                       var settingsList = savedSettings.split("\n");
+                                       baseName.text = settingsList[0];
+                                       login.text = settingsList[1];
+                                       pass.text = settingsList[2];
+                                       rootUrl.text = settingsList[3];
+                                   }
+                         }
+
 
                        Column {
                            width: parent.width
                            spacing: 10
 
                            Label {
-                               text: "Название базы:"
+                               text: "Название:"
                            }
 
                            TextField {
                                width: parent.width
                                id: baseName
-                               text: "Склад"
+                               //text: "Склад"
                            }
 
                            Label {
@@ -457,7 +482,7 @@ ApplicationWindow {
                            TextField {
                                width: parent.width
                                id: rootUrl
-                               text: "http://rooturl/hc/docum"
+                              // text: "http://192.168.1.136/Ihttp/ru_RU/hs/Request/test"
                            }
 
                            Label {
@@ -467,7 +492,7 @@ ApplicationWindow {
                            TextField {
                                width: parent.width
                                id: login
-                               text: "Bot"
+                               //text: "Bot"
                            }
 
                            Label {
@@ -477,7 +502,8 @@ ApplicationWindow {
                            TextField {
                                width: parent.width
                                id: pass
-                               text: "12345"
+                               //text: "12345"
+                               echoMode: TextInput.Password
                            }
 
 
@@ -488,6 +514,8 @@ ApplicationWindow {
                                Button {
                                    text: "Удалить"
                                    onClicked: {
+                                       settingsHandler.removeBase(baseName.text)
+                                       listBases.currentIndex = -1
                                        editBase.close()
                                    }
                                }
@@ -505,6 +533,7 @@ ApplicationWindow {
                                        //if (true) { //Если поля заполнены тогда добавляем/изменяем метод
                                        settingsHandler.editDatabase(baseName.text, login.text, pass.text, rootUrl.text)
                                        //}
+                                        listBases.currentIndex = -1 //settingsHandler.getCurrentIndex()
                                        editBase.close()
                                    }
                                }
@@ -514,24 +543,16 @@ ApplicationWindow {
                    }//DialogBase
 
 
-                   Label {
-                          text: "Настройки программы"
-                          font.pixelSize: 28
-                          anchors.horizontalCenter:  parent.horizontalCenter
-                      }
+
 
 
                     ColumnLayout {
                            anchors.fill: parent
                            anchors.margins: 20
                            anchors.leftMargin: 20
+                           anchors.topMargin: 20
                             width: parent.width
                             spacing: 2
-
-                            // ScrollView {
-                            //            width: parent.width
-                            //            height: parent.height * 0.8 // Можно настроить по необходимости
-                            //            }//ScrollView
 
                               Label {
                                   text: "Список документов:"
@@ -541,13 +562,18 @@ ApplicationWindow {
 
                               ComboBox {
                                   id: listBases
-                                  width: 250
-                                  implicitContentWidthPolicy: listBases.WidestText
+                                  width: 300
+                                  implicitContentWidthPolicy: ComboBox.ContentItemImplicitWidth
                                   model: settingsHandler.databaseNames
-                                  onCurrentIndexChanged: {
+                                  onCurrentTextChanged: {
                                       settingsHandler.setDatabase(listBases.currentText)
                                   }
+
+                                  Component.onCompleted: {
+                                     listBases.currentIndex = settingsHandler.getCurrentIndex();
+                                  }
                               }
+
 
                               Button {
                                   text: "Редактировать"
@@ -569,33 +595,33 @@ ApplicationWindow {
 
 
 
-                           Button {
-                                   text: "Показать базы данных"
-                                   onClicked: {
-                                       //textArea.text = settingsHandler.getDatabaseNames().join("\n");
-                                       // textArea.text = settingsHandler.getPath().join("\n");
-                                        settingsHandler.foo()
-                                   }
-                               }
+                           // Button {
+                           //         text: "Показать базы данных"
+                           //         onClicked: {
+                           //             //textArea.text = settingsHandler.getDatabaseNames().join("\n");
+                           //             // textArea.text = settingsHandler.getPath().join("\n");
+                           //             // settingsHandler.foo()
+                           //         }
+                           //     }
 
 
-                           ScrollView {
-                                       Layout.fillWidth: true
-                                       Layout.fillHeight: true
-                                       TextArea {
-                                           id: textArea
-                                           readOnly: true
-                                           placeholderText: "Вывод информации"
-                                           wrapMode: TextEdit.Wrap
-                                       }
-                                   }
+                           // ScrollView {
+                           //             Layout.fillWidth: true
+                           //             Layout.fillHeight: true
+                           //             TextArea {
+                           //                 id: textArea
+                           //                 readOnly: true
+                           //                 placeholderText: "Вывод информации"
+                           //                 wrapMode: TextEdit.Wrap
+                           //             }
+                           //         }
 
-                                  Connections {
-                                      target: settingsHandler
-                                      onLogMessagesChanged: {
-                                          textArea.append(settingsHandler.logMessages);
-                                      }
-                                  }
+                           //        Connections {
+                           //            target: settingsHandler
+                           //            onLogMessagesChanged: {
+                           //                textArea.append(settingsHandler.logMessages);
+                           //            }
+                           //        }
 
 
 
@@ -682,19 +708,6 @@ ApplicationWindow {
            Qt.createQmlObject('import QtQuick 2.0; Timer { interval: 3000; running: true; repeat: false; onTriggered: messagePopup.close(); }', messagePopup);
        }
 
-
-    // Component.onCompleted: {
-    //     var savedSettings = settingsHandler.loadSettings();
-    //      if(savedSettings === ""){
-    //          showMessage("Не обнаружены настройки!")
-    //      }else{
-    //          var settingsList = savedSettings.split("\n");
-    //          constUrl = settingsList[0];
-    //          constLogin = settingsList[1];
-    //          constPass = settingsList[2];
-    //          constKey = settingsList[3];
-    //      }
-    // }
 
 
     Rectangle {

@@ -19,40 +19,40 @@ HttpClient::HttpClient(SettingsHandler *settingsHandler, BarcodesData *barcodesD
 
 void HttpClient::makePostRequest()
 {
-    // // Получаем настройки из свойств объекта SettingsHandler
-    // QString url = settingsHandler->url();
-    // QString login = settingsHandler->login();
-    // QString pass = settingsHandler->password();
+    // Получаем настройки из свойств объекта SettingsHandler
+    QString url = settingsHandler->currentDatabase().url;
+    QString login = settingsHandler->currentDatabase().login;
+    QString pass = settingsHandler->currentDatabase().password;
 
-    // QNetworkRequest request;
-    // request.setUrl(QUrl(url));
-    // request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    QNetworkRequest request;
+    request.setUrl(QUrl(url));
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
-    // // Преобразование логина и пароля в Base64
-    // QString authorizationHeader = "Basic " + toBase64(login, pass);
+    // Преобразование логина и пароля в Base64
+    QString authorizationHeader = "Basic " + toBase64(login, pass);
 
-    // // Установка заголовка авторизации
-    // request.setRawHeader("Authorization", authorizationHeader.toUtf8());
+    // Установка заголовка авторизации
+    request.setRawHeader("Authorization", authorizationHeader.toUtf8());
 
-    // // Преобразуем BarcodesData в QJsonObject
-    // QJsonArray jsonArray; // Изменили на QJsonArray для хранения нескольких объектов
-    // for (int row = 0; row < barcodesData->rowCount(); ++row) {
-    //     QJsonObject jsonObject;
-    //     QString barcode = barcodesData->get(row, 0).toString();
-    //     int quantity = barcodesData->get(row, 1).toInt();
-    //     QString comment = barcodesData->get(row, 2).toString(); // Получаем значение комментария
+    // Преобразуем BarcodesData в QJsonObject
+    QJsonArray jsonArray; // Изменили на QJsonArray для хранения нескольких объектов
+    for (int row = 0; row < barcodesData->rowCount(); ++row) {
+        QJsonObject jsonObject;
+        QString barcode = barcodesData->get(row, 0).toString();
+        int quantity = barcodesData->get(row, 1).toInt();
+        QString comment = barcodesData->get(row, 2).toString(); // Получаем значение комментария
 
-    //     jsonObject["barcode"] = barcode;  // Добавляем штрихкод в объект JSON
-    //     jsonObject["quantity"] = quantity; // Добавляем количество в объект JSON
-    //     jsonObject["comment"] = comment; // Добавляем комментарий в объект JSON
+        jsonObject["barcode"] = barcode;  // Добавляем штрихкод в объект JSON
+        jsonObject["quantity"] = quantity; // Добавляем количество в объект JSON
+        jsonObject["comment"] = comment; // Добавляем комментарий в объект JSON
 
-    //     jsonArray.append(jsonObject); // Добавляем объект JSON в массив
-    // }
+        jsonArray.append(jsonObject); // Добавляем объект JSON в массив
+    }
 
-    // QJsonDocument jsonDoc(jsonArray); // Создаем документ JSON из массива
-    // QByteArray jsonData = jsonDoc.toJson(); // Преобразуем документ в QByteArray
+    QJsonDocument jsonDoc(jsonArray); // Создаем документ JSON из массива
+    QByteArray jsonData = jsonDoc.toJson(); // Преобразуем документ в QByteArray
 
-    // networkManager->post(request, jsonData); // Отправляем POST запрос с данными JSON
+    networkManager->post(request, jsonData); // Отправляем POST запрос с данными JSON
 }
 
 

@@ -20,23 +20,17 @@ void SettingsHandler::appendLog(const QString &message) {
 }
 
 // Метод для получения списка имен баз данных
-QStringList SettingsHandler::getDatabaseNames()  {
+QStringList SettingsHandler::getDatabaseNames() {
 
     return m_databaseNames;
 }
 
-void SettingsHandler::foo(){
-    loadSettings();
-    saveDatabases();
+// Метод для получения индекса текущей базы данных
+int SettingsHandler::getCurrentIndex() const {
+    return m_databaseNames.indexOf(m_currentDatabase.name);
 }
 
-// Метод для получения списка имен баз данных
-QString SettingsHandler::getPath() const {
-    QString filePath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/settings.bin";
-    return filePath;
-}
-
-// Метод для получения текущей базы данных
+// Метод для получения индекса текущей базы данных
 Database SettingsHandler::currentDatabase() const {
     return m_currentDatabase;
 }
@@ -47,12 +41,38 @@ void SettingsHandler::setCurrentDatabase(const Database &db) {
     emit currentDatabaseChanged();
 }
 
+
 // Метод для установки текущей базы данных по имени
 void SettingsHandler::setDatabase(const QString &name) {
     if (m_databases.contains(name)) {
-        setCurrentDatabase(m_databases[name]);
+        m_currentDatabase = m_databases[name];
         emit currentDatabaseChanged();
-        appendLog("Database set: " + name);
+        appendLog("Установлена текущая база: " + name);
+    }
+}
+
+// Метод для установки текущей базы данных по имени
+void SettingsHandler::removeBase(const QString &name) {
+    if (m_databases.contains(name)) {
+        bool wasCurrent = (m_currentDatabase.name == name);
+        m_databases.remove(name);
+        m_databaseNames.removeOne(name);
+        saveDatabases();
+        emit databasesChanged();
+        appendLog("Удалена база: " + name);
+
+        // Сбрасываем текущую базу, если она была удалена
+        if (wasCurrent) {
+            if (!m_databases.isEmpty()) {
+                auto firstDatabase = m_databases.constBegin();
+                setCurrentDatabase(firstDatabase.value());
+            } else {
+                setCurrentDatabase(Database()); // или установите пустое состояние
+            }
+            emit currentDatabaseChanged();
+        }
+    } else {
+        appendLog("База не найдена: " + name);
     }
 }
 
@@ -99,10 +119,10 @@ void SettingsHandler::saveDatabases() {
             appendLog("Сохранены данные базы: " + db.name);
         }
 
-        out << m_currentDatabase.name << Qt::endl;
-        out << m_currentDatabase.url << Qt::endl;
-        out << m_currentDatabase.login << Qt::endl;
-        out << m_currentDatabase.password << Qt::endl;
+        // out << m_currentDatabase.name << Qt::endl;
+        // out << m_currentDatabase.url << Qt::endl;
+        // out << m_currentDatabase.login << Qt::endl;
+        // out << m_currentDatabase.password << Qt::endl;
 
         basesFile.close();
         appendLog("Настройки сохранены\n");
@@ -139,13 +159,29 @@ void SettingsHandler::loadSettings() {
             appendLog("Загружена база данных: " + db.name);
         }
 
-        m_currentDatabase.name = in.readLine();
-        m_currentDatabase.url = in.readLine();
-        m_currentDatabase.login = in.readLine();
-        m_currentDatabase.password = in.readLine();
+
+        if (!m_databases.isEmpty()) {
+            auto firstDatabase = m_databases.constBegin();
+            setCurrentDatabase(firstDatabase.value());
+        } else {
+            setCurrentDatabase(Database()); // или установите пустое состояние
+        }
+
+        // m_currentDatabase.name = in.readLine();
+        // m_currentDatabase.url = in.readLine();
+        // m_currentDatabase.login = in.readLine();
+        // m_currentDatabase.password = in.readLine();
 
         basesFile.close();
         emit databasesChanged();
         appendLog("Настройки загружены\n");
     }
+}
+
+QString SettingsHandler::getSettings(){
+
+    if (m_currentDatabase.name != ""){
+        return QString("%1\n%2\n%3\n%4").arg(m_currentDatabase.name, m_currentDatabase.login, m_currentDatabase.password, m_currentDatabase.url); // Формирование строки с настройками
+    }
+    return QString();
 }

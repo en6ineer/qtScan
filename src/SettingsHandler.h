@@ -29,16 +29,14 @@ public:
     void loadSettings();
     void saveDatabases();
     void appendLog(const QString &message);
-
-
     Database currentDatabase() const;
+    Q_INVOKABLE int getCurrentIndex() const;
     void setCurrentDatabase(const Database &db);
-
+    Q_INVOKABLE void removeBase(const QString &name);
     Q_INVOKABLE void setDatabase(const QString &name);
     Q_INVOKABLE void editDatabase(const QString &name, const QString &login, const QString &password, const QString &url);
-    Q_INVOKABLE QStringList getDatabaseNames(); //QStringList
-    Q_INVOKABLE QString getPath() const;
-    Q_INVOKABLE void foo();
+    Q_INVOKABLE QStringList getDatabaseNames();
+    Q_INVOKABLE QString getSettings();
     QString logMessages() const;
 
 signals:
