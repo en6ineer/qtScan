@@ -10,32 +10,8 @@ SettingsHandler::SettingsHandler(QObject *parent)
     loadSettings();
 }
 
-// Метод для сериализации структуры Method
-QDataStream &operator<<(QDataStream &out, const Method &method) {
-    out << method.name << method.endpoint;
-    return out;
-}
-
-// Метод для десериализации структуры Method
-QDataStream &operator>>(QDataStream &in, Method &method) {
-    in >> method.name >> method.endpoint;
-    return in;
-}
-
-// Метод для сериализации структуры Database
-QDataStream &operator<<(QDataStream &out, const Database &db) {
-    out << db.name << db.url << db.login << db.password;
-    return out;
-}
-
-// Метод для десериализации структуры Database
-QDataStream &operator>>(QDataStream &in, Database &db) {
-    in >> db.name >> db.url >> db.login >> db.password;
-    return in;
-}
-
 // Метод для получения списка имен баз данных
-QStringList SettingsHandler::databaseNames() const {
+QStringList SettingsHandler::getDatabaseNames() const {
     return m_databaseNames;
 }
 
@@ -99,13 +75,13 @@ void SettingsHandler::editDatabase(const QString &name, const QString &login, co
         db.password = password;
     }
 
-    saveDatabases();
-    emit databasesChanged();
-
-    if (name == m_currentDatabase.name) {
+    if (name != m_currentDatabase.name) {
         setCurrentDatabase(m_databases[name]);
         emit currentDatabaseChanged();
     }
+
+    saveDatabases();
+    emit databasesChanged();
 }
 
 // Метод для добавления или редактирования метода
@@ -131,11 +107,12 @@ void SettingsHandler::editMethod(const QString &databaseName, const QString &met
 
         saveMethods();
         emit currentMethodChanged();
+        emit methodsChanged();
     }
 }
 
 // Метод для получения списка имен методов текущей базы данных
-QStringList SettingsHandler::methodNames() const {
+QStringList SettingsHandler::getMethodNames() const {
     QStringList methodNames;
     if (m_methods.contains(m_currentDatabase.name)) {
         for (const auto &method : m_methods[m_currentDatabase.name]) {
@@ -147,13 +124,35 @@ QStringList SettingsHandler::methodNames() const {
 
 // Метод для загрузки настроек из файлов
 void SettingsHandler::loadSettings() {
+
+     // QFile::remove(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/Bases.bin");
+     // QFile::remove(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/Methods.bin");
+
     // Загрузка баз данных
     QString basesFilePath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/Bases.bin";
     QFile basesFile(basesFilePath);
     if (basesFile.open(QIODevice::ReadOnly)) {
         QDataStream in(&basesFile);
-        in >> m_databases >> m_databaseNames >> m_currentDatabase;
+
+        // Загрузка списка имен баз данных
+        int dbCount;
+        in >> dbCount;
+        m_databaseNames.clear();
+        for (int i = 0; i < dbCount; ++i) {
+            QString dbName;
+            in >> dbName;
+            m_databaseNames.append(dbName);
+
+            Database db;
+            in >> db.name >> db.url >> db.login >> db.password;
+            m_databases.insert(dbName, db);
+        }
+
+        // Загрузка текущей базы данных
+        in >> m_currentDatabase.name >> m_currentDatabase.url >> m_currentDatabase.login >> m_currentDatabase.password;
+
         basesFile.close();
+        emit databasesChanged();
     }
 
     // Загрузка методов
@@ -161,8 +160,20 @@ void SettingsHandler::loadSettings() {
     QFile methodsFile(methodsFilePath);
     if (methodsFile.open(QIODevice::ReadOnly)) {
         QDataStream in(&methodsFile);
-        in >> m_methods >> m_currentMethod;
+
+        int methodCount;
+        in >> methodCount;
+        m_methods.clear();
+        for (int i = 0; i < methodCount; ++i) {
+            QString dbName, methodName, endpoint;
+            in >> dbName >> methodName >> endpoint;
+            m_methods[dbName].append({ methodName, endpoint });
+        }
+
+        in >> m_currentMethod.name >> m_currentMethod.endpoint;
+
         methodsFile.close();
+        emit methodsChanged();
     }
 }
 
@@ -172,7 +183,18 @@ void SettingsHandler::saveDatabases() {
     QFile basesFile(basesFilePath);
     if (basesFile.open(QIODevice::WriteOnly)) {
         QDataStream out(&basesFile);
-        out << m_databases << m_databaseNames << m_currentDatabase;
+
+        // Сохранение списка имен баз данных
+        out << m_databaseNames.size();
+        for (const QString &dbName : m_databaseNames) {
+            out << dbName;
+            const Database &db = m_databases[dbName];
+            out << db.name << db.url << db.login << db.password;
+        }
+
+        // Сохранение текущей базы данных
+        out << m_currentDatabase.name << m_currentDatabase.url << m_currentDatabase.login << m_currentDatabase.password;
+
         basesFile.close();
     }
 }
@@ -183,7 +205,22 @@ void SettingsHandler::saveMethods() {
     QFile methodsFile(methodsFilePath);
     if (methodsFile.open(QIODevice::WriteOnly)) {
         QDataStream out(&methodsFile);
-        out << m_methods << m_currentMethod;
+
+        int methodCount = 0;
+        for (auto it = m_methods.cbegin(); it != m_methods.cend(); ++it) {
+            methodCount += it.value().size();
+        }
+        out << methodCount;
+
+        for (auto it = m_methods.cbegin(); it != m_methods.cend(); ++it) {
+            for (const Method &method : it.value()) {
+                out << it.key() << method.name << method.endpoint;
+            }
+        }
+
+        out << m_currentMethod.name << m_currentMethod.endpoint;
+
         methodsFile.close();
     }
 }
+

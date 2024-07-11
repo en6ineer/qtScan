@@ -516,7 +516,8 @@ ApplicationWindow {
                    Dialog {
                        id: editMethod
                        x: parent.width / 2 - width / 2 // центр по горизонтали
-                       y: 30
+                       y: 20
+
                        // Тут наверное лучше сделать закреп выше центра, чтобы клавиатура не перекрывала.
                        title: "Редактирование базы"
 
@@ -581,12 +582,20 @@ ApplicationWindow {
                           anchors.horizontalCenter:  parent.horizontalCenter
                       }
 
+
+
+
                     ColumnLayout {
                            anchors.fill: parent
                            anchors.margins: 20
                            anchors.leftMargin: 20
                             width: parent.width
                             spacing: 2
+
+                            // ScrollView {
+                            //            width: parent.width
+                            //            height: parent.height * 0.8 // Можно настроить по необходимости
+                            //            }//ScrollView
 
                               Label {
                                   text: "Список баз для подключения:"
@@ -596,7 +605,7 @@ ApplicationWindow {
 
                               ComboBox {
                                   id: listBases
-                                  width: parent.width
+                                  width: 250
                                   model: settingsHandler.databaseNames
                                   onCurrentIndexChanged: {
                                       settingsHandler.setDatabase(listBases.currentText)
@@ -619,7 +628,7 @@ ApplicationWindow {
                               ComboBox {
                                   id: listMethods
                                   width: parent.width
-                                  model: settingsHandler.methodNames()
+                                  model: settingsHandler.methodNames
                                   onCurrentIndexChanged: {
                                       settingsHandler.setMethod(listMethods.currentText)
                                   }
@@ -640,6 +649,32 @@ ApplicationWindow {
                                    confirmClearDialog.open()
                                }
                            }
+
+                           Button {
+                                   text: "Показать базы данных"
+                                   onClicked: {
+                                       textArea.text = settingsHandler.getDatabaseNames().join("\n");
+                                   }
+                               }
+
+                               Button {
+                                   text: "Показать методы"
+                                   onClicked: {
+                                       textArea.text = settingsHandler.getMethodNames().join("\n");
+                                   }
+                               }
+
+                               TextArea {
+                                   id: textArea
+                                   Layout.fillWidth: true
+                                   Layout.fillHeight: true
+                                   readOnly: true
+                                   placeholderText: "Вывод информации"
+                                   wrapMode: TextEdit.Wrap
+                               }
+
+
+
 
                     }//ColumnLayout
 

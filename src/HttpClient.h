@@ -14,7 +14,6 @@ class HttpClient : public QObject
     Q_OBJECT
 public:
     explicit HttpClient(SettingsHandler *settingsHandler, BarcodesData *barcodesData, QObject *parent = nullptr);
-    Q_INVOKABLE void makeGetRequest(const QString &url);
     Q_INVOKABLE void makePostRequest();
 
 signals:

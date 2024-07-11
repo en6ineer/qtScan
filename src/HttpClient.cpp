@@ -16,17 +16,6 @@ HttpClient::HttpClient(SettingsHandler *settingsHandler, BarcodesData *barcodesD
     this->barcodesData = barcodesData;
 }
 
-void HttpClient::makeGetRequest(const QString &url)
-{
-    QNetworkRequest request;
-    request.setUrl(QUrl(url));
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    // Захардкоженное значение Base64 для строки "логин:пароль"
-    QString authorizationHeader = "Basic Ym90OjEyMzQ1"; //это для теста
-    // Установка заголовка авторизации
-    request.setRawHeader("Authorization", authorizationHeader.toUtf8());
-    networkManager->get(request);
-}
 
 void HttpClient::makePostRequest()
 {
