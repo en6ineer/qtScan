@@ -70,7 +70,7 @@ ApplicationWindow {
                     font.pixelSize: 28
                     // Отключение экранной клавиатуры не работает
                     inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhHiddenText
-                    text: "09877665544" //for debug
+                     text: "08595026432130" //for debug
                     onFocusChanged: {
                        if (focus) {
                            Qt.inputMethod.hide();
@@ -94,7 +94,7 @@ ApplicationWindow {
                     implicitContentWidthPolicy: ComboBox.ContentItemImplicitWidth
                     model: settingsHandler.databaseNames
                     onCurrentTextChanged: {
-                        settingsHandler.setDatabase(listBases.currentText)
+                        settingsHandler.setDatabase(listBases2.currentText)
                     }
 
                      Component.onCompleted: {
@@ -207,6 +207,8 @@ ApplicationWindow {
                                                 return model.barcode
                                             } else if (column === 1) {
                                                 return model.quantity
+                                            }else if (column === 2) {
+                                                return model.comment
                                             }
                                         }
                                     }
@@ -325,7 +327,7 @@ ApplicationWindow {
                     anchors.bottomMargin: parent.height * 0.1
                     onClicked: {
                       barcodesData.addRow(field.text)
-                        field.text = "12345"
+                        field.text = "7613326027588"
                     }
                 }
 
@@ -472,7 +474,7 @@ ApplicationWindow {
                            TextField {
                                width: parent.width
                                id: baseName
-                               //text: "Склад"
+                               text: "Склад"
                            }
 
                            Label {
@@ -482,7 +484,7 @@ ApplicationWindow {
                            TextField {
                                width: parent.width
                                id: rootUrl
-                              // text: "http://192.168.1.136/Ihttp/ru_RU/hs/Request/test"
+                               text: "http://192.168.1.136/bolnica/hs/tsd/prihod"
                            }
 
                            Label {
@@ -492,7 +494,7 @@ ApplicationWindow {
                            TextField {
                                width: parent.width
                                id: login
-                               //text: "Bot"
+                               text: "bot"
                            }
 
                            Label {
@@ -502,7 +504,7 @@ ApplicationWindow {
                            TextField {
                                width: parent.width
                                id: pass
-                               //text: "12345"
+                               text: "12345"
                                echoMode: TextInput.Password
                            }
 
@@ -533,7 +535,7 @@ ApplicationWindow {
                                        //if (true) { //Если поля заполнены тогда добавляем/изменяем метод
                                        settingsHandler.editDatabase(baseName.text, login.text, pass.text, rootUrl.text)
                                        //}
-                                        listBases.currentIndex = -1 //settingsHandler.getCurrentIndex()
+                                       // listBases.currentIndex = -1 //settingsHandler.getCurrentIndex()
                                        editBase.close()
                                    }
                                }
@@ -605,16 +607,17 @@ ApplicationWindow {
                            //     }
 
 
-                           // ScrollView {
-                           //             Layout.fillWidth: true
-                           //             Layout.fillHeight: true
-                           //             TextArea {
-                           //                 id: textArea
-                           //                 readOnly: true
-                           //                 placeholderText: "Вывод информации"
-                           //                 wrapMode: TextEdit.Wrap
-                           //             }
-                           //         }
+                           ScrollView {
+                                       Layout.fillWidth: true
+                                       Layout.fillHeight: true
+                                       TextArea {
+                                           id: textArea
+                                           readOnly: true
+                                           visible: false
+                                           placeholderText: "Вывод информации"
+                                           wrapMode: TextEdit.Wrap
+                                       }
+                                   }
 
                            //        Connections {
                            //            target: settingsHandler

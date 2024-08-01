@@ -52,6 +52,11 @@ void HttpClient::makePostRequest()
     QJsonDocument jsonDoc(jsonArray); // Создаем документ JSON из массива
     QByteArray jsonData = jsonDoc.toJson(); // Преобразуем документ в QByteArray
 
+    // Создаем QSslConfiguration для игнорирования ошибок сертификата
+    QSslConfiguration sslConfig = QSslConfiguration::defaultConfiguration();
+    sslConfig.setPeerVerifyMode(QSslSocket::VerifyNone);
+    sslConfig.setProtocol(QSsl::TlsV1_2);
+
     networkManager->post(request, jsonData); // Отправляем POST запрос с данными JSON
 }
 
