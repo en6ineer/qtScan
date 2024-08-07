@@ -6,6 +6,8 @@
 #include <QNetworkReply>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QSslError>
+#include <QSslConfiguration>
 #include "BarcodesData.h"
 #include "SettingsHandler.h"
 
@@ -21,6 +23,7 @@ signals:
 
 private slots:
     void onFinished(QNetworkReply *reply);
+    void ignoreSslErrors(QNetworkReply *reply, const QList<QSslError> &errors);
 
 private:
     QNetworkAccessManager *networkManager;

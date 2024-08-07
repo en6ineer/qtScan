@@ -4,18 +4,17 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QNetworkRequest>
+#include <QSslConfiguration>
+#include <QSslError>
+#include <QSslSocket>
 #include "SettingsHandler.h"
 
-HttpClient::HttpClient(SettingsHandler *settingsHandler, BarcodesData *barcodesData, QObject *parent) : QObject(parent)
+HttpClient::HttpClient(SettingsHandler *settingsHandler, BarcodesData *barcodesData, QObject *parent)
+    : QObject(parent), settingsHandler(settingsHandler), barcodesData(barcodesData)
 {
     networkManager = new QNetworkAccessManager(this);
     connect(networkManager, &QNetworkAccessManager::finished, this, &HttpClient::onFinished);
-
-    // Сохранение ссылок на объекты SettingsHandler и BarcodesData
-    this->settingsHandler = settingsHandler;
-    this->barcodesData = barcodesData;
 }
-
 
 void HttpClient::makePostRequest()
 {
@@ -57,10 +56,25 @@ void HttpClient::makePostRequest()
     sslConfig.setPeerVerifyMode(QSslSocket::VerifyNone);
     sslConfig.setProtocol(QSsl::TlsV1_2);
 
-    networkManager->post(request, jsonData); // Отправляем POST запрос с данными JSON
+    request.setSslConfiguration(sslConfig);
+
+    QNetworkReply *reply = networkManager->post(request, jsonData);
+
+    // Подключаем обработчик ошибок SSL
+    connect(reply, &QNetworkReply::sslErrors, this, [this, reply](const QList<QSslError> &errors) {
+        ignoreSslErrors(reply, errors);
+    });
 }
 
-
+void HttpClient::ignoreSslErrors(QNetworkReply *reply, const QList<QSslError> &errors)
+{
+    // Игнорируем все ошибки SSL
+    qDebug() << "Ignoring SSL errors:";
+    for (const QSslError &error : errors) {
+        qDebug() << error.errorString();
+    }
+    reply->ignoreSslErrors(errors);
+}
 
 void HttpClient::onFinished(QNetworkReply *reply)
 {

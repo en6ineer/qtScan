@@ -70,7 +70,7 @@ ApplicationWindow {
                     font.pixelSize: 28
                     // Отключение экранной клавиатуры не работает
                     inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhHiddenText
-                     text: "08595026432130" //for debug
+                     // text: "08595026432130" //for debug
                     onFocusChanged: {
                        if (focus) {
                            Qt.inputMethod.hide();
@@ -278,7 +278,7 @@ ApplicationWindow {
                         TextField {
                             width: parent.width
                             id: commentField
-                            text: editComment//"Работает как мне надо"
+                            text: editComment
                         }
 
                         // Custom buttons panel
@@ -319,17 +319,17 @@ ApplicationWindow {
                 }
 
 
-                Button {
-                    text: "Добавить штрихкод"
-                    scale: 2//3 //build
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.bottom: parent.bottom
-                    anchors.bottomMargin: parent.height * 0.1
-                    onClicked: {
-                      barcodesData.addRow(field.text)
-                        field.text = "7613326027588"
-                    }
-                }
+                // Button {
+                //     text: "Добавить штрихкод"
+                //     scale: 2//3 //build
+                //     anchors.horizontalCenter: parent.horizontalCenter
+                //     anchors.bottom: parent.bottom
+                //     anchors.bottomMargin: parent.height * 0.1
+                //     onClicked: {
+                //       barcodesData.addRow(field.text)
+                //         field.text = "7613326027588"
+                //     }
+                // }
 
                 Button {
                     text: "Отправить в 1С"
@@ -484,7 +484,7 @@ ApplicationWindow {
                            TextField {
                                width: parent.width
                                id: rootUrl
-                               text: "http://192.168.1.136/bolnica/hs/tsd/prihod"
+                               // text: "https://paleativbuh.e-mis.kz:8443/buhpol/hs/tsd/prihod" //"http://192.168.1.136/bolnica/hs/tsd/prihod"
                            }
 
                            Label {
@@ -494,7 +494,7 @@ ApplicationWindow {
                            TextField {
                                width: parent.width
                                id: login
-                               text: "bot"
+                               // text: "bot"
                            }
 
                            Label {
@@ -504,7 +504,7 @@ ApplicationWindow {
                            TextField {
                                width: parent.width
                                id: pass
-                               text: "12345"
+                               // text: "0000" //"12345"
                                echoMode: TextInput.Password
                            }
 
@@ -595,18 +595,6 @@ ApplicationWindow {
                            }
 
 
-
-
-                           // Button {
-                           //         text: "Показать базы данных"
-                           //         onClicked: {
-                           //             //textArea.text = settingsHandler.getDatabaseNames().join("\n");
-                           //             // textArea.text = settingsHandler.getPath().join("\n");
-                           //             // settingsHandler.foo()
-                           //         }
-                           //     }
-
-
                            ScrollView {
                                        Layout.fillWidth: true
                                        Layout.fillHeight: true
@@ -618,13 +606,6 @@ ApplicationWindow {
                                            wrapMode: TextEdit.Wrap
                                        }
                                    }
-
-                           //        Connections {
-                           //            target: settingsHandler
-                           //            onLogMessagesChanged: {
-                           //                textArea.append(settingsHandler.logMessages);
-                           //            }
-                           //        }
 
 
 
@@ -652,23 +633,6 @@ ApplicationWindow {
                                        barcodesData.clear()
                                    }
                            }
-
-                           // TextArea {
-                           //     id: responseText
-                           //     Layout.fillWidth: true
-                           //     Layout.fillHeight: true
-                           //     readOnly: true
-                           //     placeholderText: "Debug log:"
-                           //     wrapMode: TextEdit.Wrap
-                           // }
-
-
-                       // Connections {
-                       //     target: httpClient
-                       //     function onRequestFinished(response) {
-                       //         responseText.text = response;
-                       //     }
-                       // }
 
             }//page
         }
