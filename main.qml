@@ -474,7 +474,7 @@ ApplicationWindow {
                            TextField {
                                width: parent.width
                                id: baseName
-                               text: "Склад"
+                               //text: "Склад"
                            }
 
                            Label {
