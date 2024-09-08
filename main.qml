@@ -20,9 +20,9 @@ ApplicationWindow {
                        Qt.quit();
                    }
 
-           onRejected: {
-               exitDialog.visible = false;
-           }
+           // onRejected: {
+           //     exitDialog.visible = false;
+           // }
 
 
            contentItem: Column {
@@ -34,18 +34,6 @@ ApplicationWindow {
            }
        }
 
-       // // Перехват события закрытия
-       // onClosing: {
-       //     exitDialog.visible = true;
-       //     event.accepted = false;
-       // }
-
-       // Connections {
-       //         target: androidBackHandler
-       //         onBackPressed: {
-       //             exitDialog.open();
-       //         }
-       //     }
 
 
     StackView {
@@ -484,7 +472,7 @@ ApplicationWindow {
                            TextField {
                                width: parent.width
                                id: rootUrl
-                               // text: "https://paleativbuh.e-mis.kz:8443/buhpol/hs/tsd/prihod" //"http://192.168.1.136/bolnica/hs/tsd/prihod"
+                               // text: "http://192.168.1.136/bolnica/hs/tsd/prihod"
                            }
 
                            Label {
