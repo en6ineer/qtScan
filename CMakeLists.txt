@@ -20,6 +20,7 @@ qt_add_executable(qtandrApp src/main.cpp
     src/BarcodesData.cpp
     src/SettingsHandler.h
     src/SettingsHandler.cpp
+    src/CSVGenerator.h src/CSVGenerator.cpp
 
 
 )

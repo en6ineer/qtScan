@@ -7,278 +7,275 @@ ApplicationWindow {
     visible: true
     title: "1Sklad"
 
+    // Определение базового размера для масштабирования
+    property real baseWidth: 480
+    property real baseHeight: 764
+    property real scaleFactor: Math.min(width / baseWidth, height / baseHeight)
 
     // Диалоговое окно подтверждения закрытия
-       Dialog {
-           id: exitDialog
-           title: "Подтверждение выхода"
-           modal: true
-           standardButtons: DialogButtonBox.Yes | DialogButtonBox.No
-           visible: false
+    Dialog {
+        id: exitDialog
+        title: "Подтверждение выхода"
+        modal: true
+        standardButtons: DialogButtonBox.Yes | DialogButtonBox.No
+        visible: false
+        width: parent.width * 0.8
+        height: parent.height * 0.2
 
-           onAccepted: {
-                       Qt.quit();
-                   }
+        onAccepted: {
+            Qt.quit();
+        }
 
-           // onRejected: {
-           //     exitDialog.visible = false;
-           // }
-
-
-           contentItem: Column {
-               spacing: 10
-               Text {
-                   text: "Вы уверены, что хотите закрыть приложение?\nСписок штрихкодов будет очищен."
-                   wrapMode: Text.Wrap
-               }
-           }
-       }
-
-
+        contentItem: Column {
+            spacing: 10 * scaleFactor
+            Text {
+                text: "Вы уверены, что хотите закрыть приложение?\nСписок штрихкодов будет очищен."
+                wrapMode: Text.Wrap
+                font.pixelSize: 16 * scaleFactor
+            }
+        }
+    }
 
     StackView {
         id: stackView
         anchors.fill: parent
         anchors.bottom: navigationBar.top
-        initialItem: secondPage //mainpage
-
+        initialItem: secondPage
 
         Component {
             id: secondPage
             Page {
-
-
                 TextField {
                     id: field
-                    y: 5
-                    anchors.horizontalCenter:  parent.horizontalCenter
+                    y: parent.height * 0.01
+                    anchors.horizontalCenter: parent.horizontalCenter
                     placeholderText: "Поле ввода:"
                     height: parent.height * 0.08
-                    width: parent.width
-                    font.pixelSize: 28
-                    // Отключение экранной клавиатуры не работает
+                    width: parent.width * 0.9
+                    font.pixelSize: 28 * scaleFactor
                     inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhHiddenText
-                     // text: "08595026432130" //for debug
+
                     onFocusChanged: {
-                       if (focus) {
-                           Qt.inputMethod.hide();
-                       }
-                   }
+                        if (focus) {
+                            Qt.inputMethod.hide();
+                        }
+                    }
 
-                   Keys.onPressed: {
-                       if ((event.key === 0 || event.key === 16777220) && field.text != "") {
-                           barcodesData.addRow(field.text)
-                           field.text = ""
-                           event.accepted = true
-                       }
-                   }
+                    Keys.onPressed: {
+                        if ((event.key === 0 || event.key === 16777220) && field.text != "") {
+                            barcodesData.addRow(field.text)
+                            field.text = ""
+                            event.accepted = true
+                        }
+                    }
                 }
-
 
                 ComboBox {
                     id: listBases2
-                    y: field.height + 25
-                    width: parent.width
+                    y: field.y + field.height + parent.height * 0.03
+                    width: parent.width * 0.9
+                    anchors.horizontalCenter: parent.horizontalCenter
                     implicitContentWidthPolicy: ComboBox.ContentItemImplicitWidth
                     model: settingsHandler.databaseNames
                     onCurrentTextChanged: {
                         settingsHandler.setDatabase(listBases2.currentText)
                     }
 
-                     Component.onCompleted: {
+                    Component.onCompleted: {
                         listBases2.currentIndex = settingsHandler.getCurrentIndex();
-                     }
-
-
+                    }
                 }
 
                 Rectangle {
+                    width: parent.width * 0.95
+                    height: parent.height * 0.6
+                    color: "transparent"
+                    border.color: "black"
+                    border.width: 2 * scaleFactor
+                    anchors.centerIn: parent
+                    anchors.topMargin: parent.height * 0.25 + 5
+
+                    // Горизонтальный заголовок
+                    Row {
                         width: parent.width
-                        height: parent.height * 0.6 //0.7
-                        color: "transparent"
-                        border.color: "black"
-                        border.width: 2
-                        anchors.centerIn: parent
-                        anchors.topMargin: 200
+                        height: parent.height * 0.1
+                        anchors.top: parent.top
 
-
-                        // Горизонтальный заголовок
-                        Row {
-                            width: parent.width
-                            height: 40
-                            anchors.top: parent.top
-                            //spacing: 5
-
-                            Rectangle {
-                                width: parent.width * 0.5
-                                height: parent.height
-                                color: "lightgray"
-                                border.color: "black"
-                                border.width: 1
-
-                                Text {
-                                    anchors.centerIn: parent
-                                    text: "Штрихкод"
-                                    font.bold: true
-                                }
-                            }
-
-                            Rectangle {
-                                width: parent.width * 0.5
-                                height: parent.height
-                                color: "lightgray"
-                                border.color: "black"
-                                border.width: 1
-
-                                Text {
-                                    anchors.centerIn: parent
-                                    text: "Количество"
-                                    font.bold: true
-                                }
-                            }
-                        }
-
-                        // Основная часть с таблицей и вертикальным заголовком
                         Rectangle {
-                            width: parent.width
-                            height: parent.height - 60
-                            anchors.top: parent.top
-                            anchors.topMargin: 60
+                            width: parent.width * 0.5
+                            height: parent.height
+                            color: "lightgray"
+                            border.color: "black"
+                            border.width: 1 * scaleFactor
 
+                            Text {
+                                anchors.centerIn: parent
+                                text: "Штрихкод"
+                                font.bold: true
+                                font.pixelSize: 16 * scaleFactor
+                            }
+                        }
 
+                        Rectangle {
+                            width: parent.width * 0.5
+                            height: parent.height
+                            color: "lightgray"
+                            border.color: "black"
+                            border.width: 1 * scaleFactor
 
-                            // Вертикальный заголовок
-                            VerticalHeaderView {
-                                id: verticalHeader
-                                anchors.top: tableView.top
-                                anchors.bottom: tableView.bottom
-                                anchors.left: parent.left
-                                anchors.leftMargin: 10
-                                syncView: tableView
+                            Text {
+                                anchors.centerIn: parent
+                                text: "Количество"
+                                font.bold: true
+                                font.pixelSize: 16 * scaleFactor
+                            }
+                        }
+                    }
 
-                                delegate: Rectangle {
-                                    width: 50  // Ширина вертикального заголовка
-                                    height: 50
-                                    implicitHeight: 50
-                                    implicitWidth: 50
-                                    border.color: "black"
-                                    border.width: 1
-                                    color: "lightgray"
+                    // Основная часть с таблицей и вертикальным заголовком
+                    Rectangle {
+                        width: parent.width
+                        height: parent.height * 0.9
+                        anchors.top: parent.top
+                        anchors.topMargin: parent.height * 0.1
 
-                                    Text {
-                                        anchors.centerIn: parent
-                                        text: model.row + 1
+                        // Вертикальный заголовок
+                        VerticalHeaderView {
+                            id: verticalHeader
+                            anchors.top: tableView.top
+                            anchors.bottom: tableView.bottom
+                            anchors.left: parent.left
+                            anchors.leftMargin: parent.width * 0.02
+                            syncView: tableView
+
+                            delegate: Rectangle {
+                                width: parent.width * 0.15
+                                height: 50 * scaleFactor
+                                implicitHeight: 50 * scaleFactor
+                                implicitWidth: parent.width * 0.15
+                                border.color: "black"
+                                border.width: 1 * scaleFactor
+                                color: "lightgray"
+
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: model.row + 1
+                                    font.pixelSize: 14 * scaleFactor
+                                }
+                            }
+                        }
+
+                        // Основная таблица
+                        TableView {
+                            id: tableView
+                            anchors.fill: parent
+                            anchors.leftMargin: parent.width * 0.18
+                            model: barcodesData
+                            rowSpacing: 10 * scaleFactor
+                            columnSpacing: 20 * scaleFactor
+
+                            delegate: Rectangle {
+                                implicitHeight: 50 * scaleFactor
+                                implicitWidth: parent.width * 0.5
+                                border.color: "black"
+                                border.width: 1 * scaleFactor
+
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: {
+                                        wrapMode: Text.Wrap
+                                        if (column === 0) {
+                                            return model.barcode
+                                        } else if (column === 1) {
+                                            return model.quantity
+                                        } else if (column === 2) {
+                                            return model.comment
+                                        }
+                                    }
+                                    font.pixelSize: 14 * scaleFactor
+                                }
+
+                                MouseArea {
+                                    anchors.fill: parent
+                                    onDoubleClicked: {
+                                        editRowIndex = model.row
+                                        editBarcode = model.barcode
+                                        editQuantity = model.quantity
+                                        editComment = model.comment
+                                        editDialog.open()
                                     }
                                 }
                             }
 
-                            // Основная таблица
-                            TableView {
-                                id: tableView
-                                anchors.fill: parent
-                                anchors.leftMargin: 75
-                                model: barcodesData
-                                rowSpacing: 10
-                                columnSpacing: 20
+                            property var columnWidths: [parent.width * 0.5, parent.width * 0.25]
 
-                                delegate: Rectangle {
-                                    implicitHeight: 50
-                                    implicitWidth: parent.width * 0.5
-                                    border.color: "black"
-                                    border.width: 1
-
-                                    Text {
-                                        anchors.centerIn: parent
-                                        text: {
-                                            wrapMode: Text.Wrap
-                                            if (column === 0) {
-                                                return model.barcode
-                                            } else if (column === 1) {
-                                                return model.quantity
-                                            }else if (column === 2) {
-                                                return model.comment
-                                            }
-                                        }
-                                    }
-
-                                    MouseArea {
-                                        anchors.fill: parent
-                                        onDoubleClicked: {
-                                            editRowIndex = model.row
-                                            editBarcode = model.barcode
-                                            editQuantity = model.quantity
-                                            editComment = model.comment
-                                            editDialog.open()
-                                        }
-                                    }
-                                }
-
-                                property var columnWidths: [parent.width * 0.5, parent.width * 0.25]  // Устанавливаем начальную ширину колонок
-
-                                columnWidthProvider: function(column) {
-                                    return columnWidths[column]
-                                }
-                            }//tableview
+                            columnWidthProvider: function(column) {
+                                return columnWidths[column]
+                            }
                         }
-
-
-
-                    }//rectangle
-
+                    }
+                }
 
                 property string editBarcode: ""
                 property string editComment: ""
                 property int editQuantity: 0
                 property int editRowIndex: -1
 
-
                 Dialog {
                     id: editDialog
-                    x: parent.width / 2 - width / 2 // центр по горизонтали
-                    y: 30
-                    // Тут наверное лучше сделать закреп выше центра, чтобы клавиатура не перекрывала.
+                    x: parent.width / 2 - width / 2
+                    y: parent.height * 0.05
+                    width: parent.width * 0.9
+                    height: parent.height * 0.6
                     title: "Редактировать строку"
 
                     Column {
                         width: parent.width
-                        spacing: 10
+                        spacing: 10 * scaleFactor
                         Label {
                             text: "Штрихкод"
+                            font.pixelSize: 16 * scaleFactor
                         }
                         TextField {
                             width: parent.width
                             id: barcodeField
                             text: editBarcode
+                            font.pixelSize: 14 * scaleFactor
                         }
                         Label {
                             text: "Количество"
+                            font.pixelSize: 16 * scaleFactor
                         }
                         TextField {
                             width: parent.width
                             id: quantityField
                             text: editQuantity.toString()
                             validator: IntValidator { bottom: 0 }
+                            font.pixelSize: 14 * scaleFactor
                         }
 
                         Label {
                             text: "Комментарий"
+                            font.pixelSize: 16 * scaleFactor
                         }
                         TextField {
                             width: parent.width
                             id: commentField
                             text: editComment
+                            font.pixelSize: 14 * scaleFactor
                         }
 
                         // Custom buttons panel
                         Row {
                             width: parent.width
-                            spacing: 10
+                            spacing: 10 * scaleFactor
                             Button {
                                 text: "Удалить"
                                 onClicked: {
                                     barcodesData.removeRow(editRowIndex)
                                     editDialog.close()
                                 }
+                                font.pixelSize: 14 * scaleFactor
                             }
 
                             Button {
@@ -286,6 +283,7 @@ ApplicationWindow {
                                 onClicked: {
                                     editDialog.close()
                                 }
+                                font.pixelSize: 14 * scaleFactor
                             }
 
                             Button {
@@ -300,413 +298,389 @@ ApplicationWindow {
                                     }
                                     editDialog.close()
                                 }
+                                font.pixelSize: 14 * scaleFactor
                             }
-
                         }
                     }
                 }
 
-
-                // Button {
-                //     text: "Добавить штрихкод"
-                //     scale: 2//3 //build
-                //     anchors.horizontalCenter: parent.horizontalCenter
-                //     anchors.bottom: parent.bottom
-                //     anchors.bottomMargin: parent.height * 0.1
-                //     onClicked: {
-                //       barcodesData.addRow(field.text)
-                //         field.text = "7613326027588"
-                //     }
-                // }
-
-                Button {
-                    text: "Отправить в 1С"
+                RowLayout {
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.bottom: parent.bottom
                     anchors.bottomMargin: parent.height * 0.1
-                    onClicked: {
-                        if(listBases2.currentIndex == -1){
-                        showMessage("Не выбран документ!")
-                        //тут же бахнем проверку на ключ лицензии.
-                        }else if(barcodesData.rowCount() !== 0)
-                        {
-                          httpClient.makePostRequest();
-                        }else{
-                            showMessage("Список штрихкодов пуст!")
+                    width: parent.width * 0.8 // Ширина, чтобы разместить две кнопки по 40% каждая
+                    height: parent.height * 0.06
+                    spacing: 10 * scaleFactor // Расстояние между кнопками, масштабируемое
+
+                    Button {
+                        text: "Отправить в 1С"
+                        Layout.fillWidth: true
+                        height: parent.height
+                        font.pixelSize: 16 * scaleFactor
+                        onClicked: {
+                            if(listBases2.currentIndex == -1){
+                                showMessage("Не выбран документ!")
+                            } else if(barcodesData.rowCount() !== 0) {
+                                httpClient.makePostRequest();
+                            } else {
+                                showMessage("Список штрихкодов пуст!")
+                            }
+                        }
+                    }
+
+                    Button {
+                        text: "Отправить по USB"
+                        Layout.fillWidth: true
+                        height: parent.height
+                        font.pixelSize: 16 * scaleFactor
+                        onClicked: {
+                                var result = csvGenerator.generateCSV(barcodesData)
+                                showMessage(result)
                         }
                     }
                 }
 
 
                 // Компонент для временного сообщения
-                   Popup {
-                       id: messagePopup
-                       width: parent.width
-                       height: 50
-                       y: parent.height - height - 20
-                       x: parent.width * 0.5 - (width * 0.5)
-                       visible: false
-                       focus: true
-                       closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
-                       onClosed: visible = false
+                Popup {
+                    id: messagePopup
+                    width: parent.width * 0.9
+                    height: parent.height * 0.08
+                    y: parent.height - height - parent.height * 0.03
+                    x: parent.width * 0.5 - (width * 0.5)
+                    visible: false
+                    focus: true
+                    closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+                    onClosed: visible = false
 
-                       Rectangle {
-                           anchors.fill: parent
-                           color: "lightgray"
-                           border.color: "black"
-                           radius: 10
+                    Rectangle {
+                        anchors.fill: parent
+                        color: "lightgray"
+                        border.color: "black"
+                        radius: 10 * scaleFactor
 
-                           Text {
-                               id: messageText
-                               anchors.centerIn: parent
-                               text: ""
-                               font.pixelSize: 24
-                               color: "black"
-                           }
-                       }
-                   }
+                        Text {
+                            id: messageText
+                            anchors.centerIn: parent
+                            text: ""
+                            font.pixelSize: 24 * scaleFactor
+                            color: "black"
+                        }
+                    }
+                }
 
-                   // Функция для отображения сообщения
-                   function showMessage(text) {
-                       messageText.text = text;
-                       messagePopup.open();
-                       Qt.createQmlObject('import QtQuick 2.0; Timer { interval: 3000; running: true; repeat: false; onTriggered: messagePopup.close(); }', messagePopup);
-                   }
+                // Функция для отображения сообщения
+                function showMessage(text) {
+                    messageText.text = text;
+                    messagePopup.open();
+                    Qt.createQmlObject('import QtQuick 2.0; Timer { interval: 3000; running: true; repeat: false; onTriggered: messagePopup.close(); }', messagePopup);
+                }
 
-                   Connections {
-                           target: httpClient
-                           onRequestFinished: {
-                               showMessage(response)
-                           }
-                       }
-
-                   Component.onCompleted: {
-                                   field.forceActiveFocus()
-                               }
-
-
-            }//page
-        }//component
+                Connections {
+                    target: httpClient
+                    onRequestFinished: {
+                        showMessage(response)
+                    }
+                }
+            }
+        }
 
         Component {
             id: thirdPage
             Page {
-
                 // Компонент для временного сообщения
-                   Popup {
-                       id: messagePopup
-                       width: parent.width * 0.5
-                       height: 50
-                       y: parent.height - height - 20
-                       x: parent.width * 0.5 - (width * 0.5)
-                       visible: false
-                       focus: true
-                       closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
-                       onClosed: visible = false
+                Popup {
+                    id: messagePopup
+                    width: parent.width * 0.5
+                    height: parent.height * 0.08
+                    y: parent.height - height - parent.height * 0.03
+                    x: parent.width * 0.5 - (width * 0.5)
+                    visible: false
+                    focus: true
+                    closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+                    onClosed: visible = false
 
-                       Rectangle {
-                           anchors.fill: parent
-                           color: "lightgray"
-                           border.color: "black"
-                           radius: 10
+                    Rectangle {
+                        anchors.fill: parent
+                        color: "lightgray"
+                        border.color: "black"
+                        radius: 10 * scaleFactor
 
-                           Text {
-                               id: messageText
-                               anchors.centerIn: parent
-                               text: ""
-                               font.pixelSize: 20
-                               color: "black"
-                           }
-                       }
-                   }
+                        Text {
+                            id: messageText
+                            anchors.centerIn: parent
+                            text: ""
+                            font.pixelSize: 20 * scaleFactor
+                            color: "black"
+                        }
+                    }
+                }
 
-                   // Функция для отображения сообщения
-                   function showMessage(text) {
-                       messageText.text = text;
-                       messagePopup.open();
-                       Qt.createQmlObject('import QtQuick 2.0; Timer { interval: 3000; running: true; repeat: false; onTriggered: messagePopup.close(); }', messagePopup);
-                   }
+                // Функция для отображения сообщения
+                function showMessage(text) {
+                    messageText.text = text;
+                    messagePopup.open();
+                    Qt.createQmlObject('import QtQuick 2.0; Timer { interval: 3000; running: true; repeat: false; onTriggered: messagePopup.close(); }', messagePopup);
+                }
 
+                Dialog {
+                    id: editBase
+                    x: parent.width / 2 - width / 2
+                    y: parent.height * 0.05
+                    width: parent.width * 0.9
+                    height: parent.height * 0.7
+                    title: "Редактирование базы"
 
-
-
-                   Dialog {
-                       id: editBase
-                       x: parent.width / 2 - width / 2
-                       y: 20
-                       // Тут наверное лучше сделать закреп выше центра, чтобы клавиатура не перекрывала.
-                       title: "Редактирование базы"
-
-                       onOpened: {
-                           var savedSettings = settingsHandler.getSettings();
-                                   if(savedSettings === ""){
-                                       showMessage("Не обнаружены настройки!")
-                                   }else{
-                                       var settingsList = savedSettings.split("\n");
-                                       baseName.text = settingsList[0];
-                                       login.text = settingsList[1];
-                                       pass.text = settingsList[2];
-                                       rootUrl.text = settingsList[3];
-                                   }
-                         }
+                    onOpened: {
+                        var savedSettings = settingsHandler.getSettings();
+                        if(savedSettings === ""){
+                            showMessage("Не обнаружены настройки!")
+                        } else {
+                            var settingsList = savedSettings.split("\n");
+                            baseName.text = settingsList[0];
+                            login.text = settingsList[1];
+                            pass.text = settingsList[2];
+                            rootUrl.text = settingsList[3];
+                        }
+                    }
 
 
-                       Column {
-                           width: parent.width
-                           spacing: 10
-
-                           Label {
-                               text: "Название:"
-                           }
-
-                           TextField {
-                               width: parent.width
-                               id: baseName
-                               //text: "Склад"
-                           }
-
-                           Label {
-                               text: "Корневой URL:"
-                           }
-
-                           TextField {
-                               width: parent.width
-                               id: rootUrl
-                               // text: "http://192.168.1.136/bolnica/hs/tsd/prihod"
-                           }
-
-                           Label {
-                               text: "Логин:"
-                           }
-
-                           TextField {
-                               width: parent.width
-                               id: login
-                               // text: "bot"
-                           }
-
-                           Label {
-                               text: "Пароль:"
-                           }
-
-                           TextField {
-                               width: parent.width
-                               id: pass
-                               // text: "0000" //"12345"
-                               echoMode: TextInput.Password
-                           }
-
-
-                           Row {
-                               width: parent.width
-                               spacing: 10
-
-                               Button {
-                                   text: "Удалить"
-                                   onClicked: {
-                                       settingsHandler.removeBase(baseName.text)
-                                       listBases.currentIndex = -1
-                                       editBase.close()
-                                   }
-                               }
-
-                               Button {
-                                   text: "Отмена"
-                                   onClicked: {
-                                       editBase.close()
-                                   }
-                               }
-
-                               Button {
-                                   text: "ОК"
-                                   onClicked: {
-                                       //if (true) { //Если поля заполнены тогда добавляем/изменяем метод
-                                       settingsHandler.editDatabase(baseName.text, login.text, pass.text, rootUrl.text)
-                                       //}
-                                       // listBases.currentIndex = -1 //settingsHandler.getCurrentIndex()
-                                       editBase.close()
-                                   }
-                               }
-
-                           }//Row
-                       }//Column
-                   }//DialogBase
-
-
-
-
-
-                    ColumnLayout {
-                           anchors.fill: parent
-                           anchors.margins: 20
-                           anchors.leftMargin: 20
-                           anchors.topMargin: 20
+                    Column {
                             width: parent.width
-                            spacing: 2
+                            spacing: 10 * scaleFactor
 
-                              Label {
-                                  text: "Список документов:"
-                                  font.pixelSize: 26
-                              }
+                            Label {
+                                text: "Название:"
+                            }
+
+                            TextField {
+                                width: parent.width * 0.9
+                                id: baseName
+                            }
+
+                            Label {
+                                text: "Корневой URL:"
+                            }
+
+                            TextField {
+                                width: parent.width * 0.9
+                                id: rootUrl
+                            }
+
+                            Label {
+                                text: "Логин:"
+                            }
+
+                            TextField {
+                                width: parent.width * 0.9
+                                id: login
+                            }
+
+                            Label {
+                                text: "Пароль:"
+                            }
+
+                            TextField {
+                                width: parent.width * 0.9
+                                id: pass
+                                echoMode: TextInput.Password
+                            }
+
+                            Row {
+                                width: parent.width
+                                spacing: 10 * scaleFactor
+
+                                Button {
+                                    text: "Удалить"
+                                    onClicked: {
+                                        settingsHandler.removeBase(baseName.text)
+                                        listBases.currentIndex = -1
+                                        editBase.close()
+                                    }
+                                }
+
+                                Button {
+                                    text: "Отмена"
+                                    onClicked: {
+                                        editBase.close()
+                                    }
+                                }
+
+                                Button {
+                                    text: "ОК"
+                                    onClicked: {
+                                        settingsHandler.editDatabase(baseName.text, login.text, pass.text, rootUrl.text)
+                                        editBase.close()
+                                    }
+                                }
+                            }
+                    }//Dialog
+                        }
 
 
-                              ComboBox {
-                                  id: listBases
-                                  width: 300
-                                  implicitContentWidthPolicy: ComboBox.ContentItemImplicitWidth
-                                  model: settingsHandler.databaseNames
-                                  onCurrentTextChanged: {
-                                      settingsHandler.setDatabase(listBases.currentText)
-                                  }
 
-                                  Component.onCompleted: {
-                                     listBases.currentIndex = settingsHandler.getCurrentIndex();
-                                  }
-                              }
+                Label {
+                    text: "Список документов:"
+                    font.pixelSize: 26 * scaleFactor
+                }
 
+                ComboBox {
+                    id: listBases
+                    y: parent.height * 0.05
+                    width: parent.width //* 0.8 * scaleFactor
+                    implicitContentWidthPolicy: ComboBox.ContentItemImplicitWidth
+                    model: settingsHandler.databaseNames
+                    onCurrentTextChanged: {
+                        settingsHandler.setDatabase(listBases.currentText)
+                    }
 
-                              Button {
-                                  text: "Редактировать"
-                                  onClicked: {
-                                     editBase.open()
-                                  }
-                              }
-
+                    Component.onCompleted: {
+                        listBases.currentIndex = settingsHandler.getCurrentIndex();
+                    }
+                }
 
 
-                           Button {
-                               text: "Очистить список"
-                               Layout.alignment: Qt.AlignHCenter
-                               onClicked: {
-                                   confirmClearDialog.open()
-                               }
-                           }
+                ColumnLayout {
+                            anchors.fill: parent
+                            //anchors.top: listBases.bottom
+                            anchors.topMargin: listBases.y + parent.height * 0.05 * scaleFactor
+                            //y: listBases.bottom + (parent.height * 0.5)
+                            anchors.margins: 20 * scaleFactor
+                            width: parent.width
+                            spacing: 2 * scaleFactor
 
 
-                           ScrollView {
-                                       Layout.fillWidth: true
-                                       Layout.fillHeight: true
-                                       TextArea {
-                                           id: textArea
-                                           readOnly: true
-                                           visible: false
-                                           placeholderText: "Вывод информации"
-                                           wrapMode: TextEdit.Wrap
-                                       }
-                                   }
+//Были здесь эти комбо бокс и надпись
 
+                            Button {
+                                text: "Редактировать"
+                                onClicked: {
+                                    editBase.open()
+                                }
+                                scale: scaleFactor
+                            }
 
+                            Button {
+                                text: "Очистить список"
+                                scale: scaleFactor
+                                Layout.alignment: Qt.AlignHCenter
+                                onClicked: {
+                                    confirmClearDialog.open()
+                                }
+                            }
 
+                            ScrollView {
+                                Layout.fillWidth: true
+                                Layout.fillHeight: true
+                                TextArea {
+                                    id: textArea
+                                    readOnly: true
+                                    visible: false
+                                    placeholderText: "Вывод информации"
+                                    wrapMode: TextEdit.Wrap
+                                }
+                            }
+                        }//ColumnLayout
 
-                    }//ColumnLayout
+                        Dialog {
+                            anchors.centerIn: parent
+                            id: confirmClearDialog
+                            title: "Подтверждение"
+                            standardButtons: Dialog.Yes | Dialog.No
+                            Column {
+                                width: parent.width * 0.9
+                                spacing: 10 * scaleFactor
+                                Text {
+                                    width: parent.width
+                                    text: "Вы уверены, что хотите очистить список штрихкодов?"
+                                    wrapMode: Text.Wrap
+                                }
+                            }
 
-                           Dialog {
-                               anchors.centerIn: parent
-                               id: confirmClearDialog
-                               title: "Подтверждение"
-                               standardButtons: Dialog.Yes | Dialog.No
-                               Column {
-                                       width: parent.width - 10
-                                       spacing: 10
-                                       Text {
-                                           width: parent.width
-                                           text: "Вы уверены, что хотите очистить список штрихкодов?"
-                                           wrapMode: Text.Wrap
-                                           // Если нужно задать максимальную ширину текста, можно использовать width:
-                                           // width: myDialog.width * 0.9
-                                       }
-                                   }
-
-                                   onAccepted: {
-                                       barcodesData.clear()
-                                   }
-                           }
+                            onAccepted: {
+                                barcodesData.clear()
+                            }
+                        }
 
             }//page
-        }
-    }//StackView
+                 }
+             }//StackView
 
+                        Popup {
+                            id: messagePopup
+                            width: parent.width * 0.8 * scaleFactor
+                            height: 50 * scaleFactor
+                            y: parent.height - height - 20 * scaleFactor
+                            x: parent.width * 0.5 - (width * 0.5) * scaleFactor
+                            visible: false
+                            focus: true
+                            closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+                            onClosed: visible = false
 
-
-    // Компонент для временного сообщения
-       Popup {
-           id: messagePopup
-           width: parent.width * 0.8
-           height: 50
-           y: parent.height - height - 20
-           x: parent.width * 0.5 - (width * 0.5)
-           visible: false
-           focus: true
-           closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
-           onClosed: visible = false
-
-           Rectangle {
-               anchors.fill: parent
-               color: "lightgray"
-               border.color: "black"
-               radius: 10
-
-               Text {
-                   id: messageText
-                   anchors.centerIn: parent
-                   text: ""
-                   font.pixelSize: 26 //20
-                   color: "black"
-               }
-           }
-       }
-
-       // Функция для отображения сообщения
-       function showMessage(text) {
-           messageText.text = text;
-           messagePopup.open();
-           Qt.createQmlObject('import QtQuick 2.0; Timer { interval: 3000; running: true; repeat: false; onTriggered: messagePopup.close(); }', messagePopup);
-       }
-
-
-
-    Rectangle {
-        id: navigationBar
-        color: "lightgray"
-        width: parent.width
-        height: parent.height * 0.08
-        anchors.bottom: parent.bottom
-
-        RowLayout {
-            anchors.fill: parent
-            anchors.margins: 5
-
-            Button {
-                id: but2
-                text: "Документ"
-                Layout.fillWidth: true
-                onClicked: stackView.replace(secondPage)
-                font.pixelSize: 24//48//24
-                Layout.preferredWidth: parent.width * 0.45
-                Layout.preferredHeight: parent.height * 0.90
-                background: Rectangle {
-                                color: but2.pressed ? "lightblue" : "lightgray"
+                            Rectangle {
+                                anchors.fill: parent
+                                color: "lightgray"
                                 border.color: "black"
-                                border.width: 1
-                                radius: 0
-                            }
-            }
+                                radius: 10
 
-            Button {
-                id: but3
-                text: "Настройки"
-                Layout.fillWidth: true
-                onClicked: stackView.replace(thirdPage)
-                font.pixelSize: 24//48//24
-                Layout.preferredWidth: parent.width * 0.45//30
-                Layout.preferredHeight: parent.height * 0.90//10
-                background: Rectangle {
-                                color: but3.pressed ? "lightblue" : "lightgray"
-                                border.color: "black"
-                                border.width: 1
-                                radius: 0
+                                Text {
+                                    id: messageText
+                                    anchors.centerIn: parent
+                                    text: ""
+                                    font.pixelSize: 26 * scaleFactor
+                                    color: "black"
+                                }
                             }
-            }
+                        }
+
+                        function showMessage(text) {
+                            messageText.text = text;
+                            messagePopup.open();
+                            Qt.createQmlObject('import QtQuick 2.0; Timer { interval: 3000; running: true; repeat: false; onTriggered: messagePopup.close(); }', messagePopup);
+                        }
+
+                        Rectangle {
+                            id: navigationBar
+                            color: "lightgray"
+                            width: parent.width
+                            height: parent.height * 0.08
+                            anchors.bottom: parent.bottom
+
+                            RowLayout {
+                                anchors.fill: parent
+                                anchors.margins: 5 * scaleFactor
+
+                                Button {
+                                    id: but2
+                                    text: "Документ"
+                                    Layout.fillWidth: true
+                                    onClicked: stackView.replace(secondPage)
+                                    font.pixelSize: 24 * scaleFactor
+                                    Layout.preferredWidth: parent.width * 0.45
+                                    Layout.preferredHeight: parent.height * 0.90
+                                    background: Rectangle {
+                                        color: but2.pressed ? "lightblue" : "lightgray"
+                                        border.color: "black"
+                                        border.width: 1
+                                        radius: 0
+                                    }
+                                }
+
+                                Button {
+                                    id: but3
+                                    text: "Настройки"
+                                    Layout.fillWidth: true
+                                    onClicked: stackView.replace(thirdPage)
+                                    font.pixelSize: 24 * scaleFactor
+                                    Layout.preferredWidth: parent.width * 0.45
+                                    Layout.preferredHeight: parent.height * 0.90
+                                    background: Rectangle {
+                                        color: but3.pressed ? "lightblue" : "lightgray"
+                                        border.color: "black"
+                                        border.width: 1
+                                        radius: 0
+                                    }
+                                }
         }//RowLayout
     }//Rectangle
 }//ApplicationWindow

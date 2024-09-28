@@ -7,6 +7,7 @@
 #include "HttpClient.h"
 #include "BarcodesData.h"
 #include "SettingsHandler.h"
+#include "CSVGenerator.h"
 
 int main(int argc, char *argv[])
 {
@@ -32,6 +33,12 @@ int main(int argc, char *argv[])
     qmlRegisterType<HttpClient>("App", 1, 0, "HttpClient");
     qmlRegisterType<BarcodesData>("App", 1, 0, "BarcodesData");
     qmlRegisterType<SettingsHandler>("App", 1, 0, "SettingsHandler");
+
+
+    // Создание экземпляра CSVGenerator
+    CSVGenerator csvGenerator;
+    engine.rootContext()->setContextProperty("csvGenerator", &csvGenerator);
+
 
     // Создание экземпляра SettingsHandler
     SettingsHandler settingsHandler;
