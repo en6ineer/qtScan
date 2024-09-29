@@ -8,6 +8,8 @@
 #include "BarcodesData.h"
 #include "SettingsHandler.h"
 #include "CSVGenerator.h"
+#include "MessageHistory.h"
+
 
 int main(int argc, char *argv[])
 {
@@ -34,9 +36,11 @@ int main(int argc, char *argv[])
     qmlRegisterType<BarcodesData>("App", 1, 0, "BarcodesData");
     qmlRegisterType<SettingsHandler>("App", 1, 0, "SettingsHandler");
 
+    MessageHistory messageHistory;
+    engine.rootContext()->setContextProperty("messageHistory", &messageHistory);
 
     // Создание экземпляра CSVGenerator
-    CSVGenerator csvGenerator;
+    CSVGenerator csvGenerator(&messageHistory);
     engine.rootContext()->setContextProperty("csvGenerator", &csvGenerator);
 
 

@@ -11,11 +11,12 @@
 #include "BarcodesData.h"
 #include "SettingsHandler.h"
 
+
 class HttpClient : public QObject
 {
     Q_OBJECT
 public:
-    explicit HttpClient(SettingsHandler *settingsHandler, BarcodesData *barcodesData, QObject *parent = nullptr);
+    explicit HttpClient(SettingsHandler *settingsHandler, BarcodesData *barcodesData,  QObject *parent = nullptr);
     Q_INVOKABLE void makePostRequest();
 
 signals:

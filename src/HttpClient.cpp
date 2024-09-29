@@ -9,6 +9,7 @@
 #include <QSslSocket>
 #include "SettingsHandler.h"
 
+
 HttpClient::HttpClient(SettingsHandler *settingsHandler, BarcodesData *barcodesData, QObject *parent)
     : QObject(parent), settingsHandler(settingsHandler), barcodesData(barcodesData)
 {
@@ -82,6 +83,7 @@ void HttpClient::onFinished(QNetworkReply *reply)
         QByteArray response_data = reply->readAll();
         emit requestFinished(QString(response_data));
     } else {
+
         emit requestFinished("Error: " + reply->errorString());
     }
     reply->deleteLater();

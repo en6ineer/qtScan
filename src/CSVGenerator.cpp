@@ -2,8 +2,9 @@
 #include <QFile>
 #include <QTextStream>
 #include <QStandardPaths>
+#include "MessageHistory.h"
 
-CSVGenerator::CSVGenerator(QObject *parent) : QObject(parent) {}
+CSVGenerator::CSVGenerator(MessageHistory * messageHistory, QObject *parent) : QObject(parent), messageHistory(messageHistory) {}
 
 QString CSVGenerator::generateCSV(BarcodesData *barcodesData) {
     // Получаем путь до папки загрузок
@@ -12,11 +13,14 @@ QString CSVGenerator::generateCSV(BarcodesData *barcodesData) {
         return "Не удалось получить путь до папки загрузок.";
     }
 
-    QString filePath = downloadsPath + "/barcodes.csv";
+    QString filePath = "/storage/emulated/0/Download/Штрихкоды.csv"; //downloadsPath + "/barcodes.csv";
     QFile file(filePath);
 
     // Открываем файл для записи
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+
+        messageHistory->addMessage("Ошибка при создании файла: " + filePath);
+        emit messageHistory->messagesUpdated();
         return "Не удалось открыть файл для записи.";
     }
 
@@ -29,5 +33,7 @@ QString CSVGenerator::generateCSV(BarcodesData *barcodesData) {
     }
 
     file.close();
-    return "Файл успешно создан: " + filePath;
+    messageHistory->addMessage("Файл успешно создан: " + filePath);
+    emit messageHistory->messagesUpdated();
+    return "Файл успешно создан";
 }

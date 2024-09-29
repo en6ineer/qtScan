@@ -429,7 +429,7 @@ ApplicationWindow {
                     y: parent.height * 0.05
                     width: parent.width * 0.9
                     height: parent.height * 0.7
-                    title: "Редактирование базы"
+                    title: "Редактирование документа"
 
                     onOpened: {
                         var savedSettings = settingsHandler.getSettings();
@@ -543,7 +543,7 @@ ApplicationWindow {
                 ColumnLayout {
                             anchors.fill: parent
                             //anchors.top: listBases.bottom
-                            anchors.topMargin: listBases.y + parent.height * 0.05 * scaleFactor
+                            anchors.topMargin: listBases.y + parent.height * 0.06 * scaleFactor
                             //y: listBases.bottom + (parent.height * 0.5)
                             anchors.margins: 20 * scaleFactor
                             width: parent.width
@@ -576,8 +576,9 @@ ApplicationWindow {
                                     id: textArea
                                     readOnly: true
                                     visible: false
-                                    placeholderText: "Вывод информации"
+                                    placeholderText: "История сообщений"
                                     wrapMode: TextEdit.Wrap
+                                     text: messageHistory.allMessages
                                 }
                             }
                         }//ColumnLayout
@@ -608,7 +609,7 @@ ApplicationWindow {
 
                         Popup {
                             id: messagePopup
-                            width: parent.width * 0.8 * scaleFactor
+                            width: parent.width * 0.9 //* scaleFactor
                             height: 50 * scaleFactor
                             y: parent.height - height - 20 * scaleFactor
                             x: parent.width * 0.5 - (width * 0.5) * scaleFactor
@@ -627,7 +628,7 @@ ApplicationWindow {
                                     id: messageText
                                     anchors.centerIn: parent
                                     text: ""
-                                    font.pixelSize: 26 * scaleFactor
+                                    font.pixelSize: 26 //* scaleFactor
                                     color: "black"
                                 }
                             }
