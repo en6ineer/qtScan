@@ -2,18 +2,20 @@
 #include <QFile>
 #include <QTextStream>
 #include <QStandardPaths>
+#include <QDateTime>
 #include "MessageHistory.h"
 
 CSVGenerator::CSVGenerator(MessageHistory * messageHistory, QObject *parent) : QObject(parent), messageHistory(messageHistory) {}
 
 QString CSVGenerator::generateCSV(BarcodesData *barcodesData) {
-    // Получаем путь до папки загрузок
-    QString downloadsPath = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
-    if (downloadsPath.isEmpty()) {
-        return "Не удалось получить путь до папки загрузок.";
-    }
 
-    QString filePath = "/storage/emulated/0/Download/Штрихкоды.csv"; //downloadsPath + "/barcodes.csv";
+    // Получаем текущую дату и время
+    QString currentDateTime = QDateTime::currentDateTime().toString("yyyy-MM-dd_hh-mm-ss");
+
+    // Формируем имя файла
+    QString fileName = "Штрихкоды - " + currentDateTime + ".csv";
+    QString filePath = "/storage/emulated/0/Download/" + fileName;
+
     QFile file(filePath);
 
     // Открываем файл для записи
@@ -35,5 +37,6 @@ QString CSVGenerator::generateCSV(BarcodesData *barcodesData) {
     file.close();
     messageHistory->addMessage("Файл успешно создан: " + filePath);
     emit messageHistory->messagesUpdated();
+
     return "Файл успешно создан";
 }

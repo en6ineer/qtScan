@@ -7,6 +7,7 @@ ApplicationWindow {
     visible: true
     title: "1Sklad"
 
+     property string feedback: ""
     // Определение базового размера для масштабирования
     property real baseWidth: 480
     property real baseHeight: 764
@@ -74,6 +75,7 @@ ApplicationWindow {
                     id: listBases2
                     y: field.y + field.height + parent.height * 0.03
                     width: parent.width * 0.9
+                    height: parent.height * 0.05
                     anchors.horizontalCenter: parent.horizontalCenter
                     implicitContentWidthPolicy: ComboBox.ContentItemImplicitWidth
                     model: settingsHandler.databaseNames
@@ -318,6 +320,7 @@ ApplicationWindow {
                         height: parent.height
                         font.pixelSize: 16 * scaleFactor
                         onClicked: {
+                           // barcodesData.addRow("4870002732201")
                             if(listBases2.currentIndex == -1){
                                 showMessage("Не выбран документ!")
                             } else if(barcodesData.rowCount() !== 0) {
@@ -329,13 +332,25 @@ ApplicationWindow {
                     }
 
                     Button {
-                        text: "Отправить по USB"
+                        text: "Сохранить в файл"
                         Layout.fillWidth: true
                         height: parent.height
                         font.pixelSize: 16 * scaleFactor
                         onClicked: {
+                            //Delete before build:
+                            if (field.text != ""){
+                            barcodesData.addRow(field.text)
+                            field.text = ""
+                            }
+                            //
+                            if(barcodesData.rowCount() !== 0) {
                                 var result = csvGenerator.generateCSV(barcodesData)
                                 showMessage(result)
+                            } else {
+                                showMessage("Список штрихкодов пуст!")
+                            }
+
+
                         }
                     }
                 }
@@ -380,13 +395,17 @@ ApplicationWindow {
                     target: httpClient
                     onRequestFinished: {
                         showMessage(response)
+                        feedback = feedback + response + "/n"
+
                     }
                 }
             }
         }
 
+
         Component {
             id: thirdPage
+
             Page {
                 // Компонент для временного сообщения
                 Popup {
@@ -456,6 +475,7 @@ ApplicationWindow {
                             TextField {
                                 width: parent.width * 0.9
                                 id: baseName
+                                text: "Postuplenie"
                             }
 
                             Label {
@@ -465,6 +485,7 @@ ApplicationWindow {
                             TextField {
                                 width: parent.width * 0.9
                                 id: rootUrl
+                                text: "http://176.124.92.86/buh_test/hs/tsd/prihod"
                             }
 
                             Label {
@@ -474,6 +495,7 @@ ApplicationWindow {
                             TextField {
                                 width: parent.width * 0.9
                                 id: login
+                                text: "Администратор"
                             }
 
                             Label {
@@ -484,6 +506,7 @@ ApplicationWindow {
                                 width: parent.width * 0.9
                                 id: pass
                                 echoMode: TextInput.Password
+                                text: "852456"
                             }
 
                             Row {
@@ -519,38 +542,40 @@ ApplicationWindow {
 
 
 
-                Label {
-                    text: "Список документов:"
-                    font.pixelSize: 26 * scaleFactor
-                }
+       //Here was scrollview
+               // Item{
 
-                ComboBox {
-                    id: listBases
-                    y: parent.height * 0.05
-                    width: parent.width //* 0.8 * scaleFactor
-                    implicitContentWidthPolicy: ComboBox.ContentItemImplicitWidth
-                    model: settingsHandler.databaseNames
-                    onCurrentTextChanged: {
-                        settingsHandler.setDatabase(listBases.currentText)
+                    Label {
+                        text: "Список документов:"
+                        font.pixelSize: 26 * scaleFactor
                     }
 
-                    Component.onCompleted: {
-                        listBases.currentIndex = settingsHandler.getCurrentIndex();
+                    ComboBox {
+                        id: listBases
+                        y: parent.height * 0.05
+                        width: parent.width //* 0.8 * scaleFactor
+                        height: parent.height * 0.05
+                        implicitContentWidthPolicy: ComboBox.ContentItemImplicitWidth
+                        model: settingsHandler.databaseNames
+                        onCurrentTextChanged: {
+                            settingsHandler.setDatabase(listBases.currentText)
+                        }
+
+                        Component.onCompleted: {
+                            listBases.currentIndex = settingsHandler.getCurrentIndex();
+                        }
                     }
-                }
 
-
+                //}//Item
                 ColumnLayout {
                             anchors.fill: parent
-                            //anchors.top: listBases.bottom
-                            anchors.topMargin: listBases.y + parent.height * 0.06 * scaleFactor
+                            anchors.top: listBases.bottom
+                            anchors.topMargin: listBases.y + parent.height * 0.08 * scaleFactor
                             //y: listBases.bottom + (parent.height * 0.5)
                             anchors.margins: 20 * scaleFactor
                             width: parent.width
                             spacing: 2 * scaleFactor
 
-
-//Были здесь эти комбо бокс и надпись
 
                             Button {
                                 text: "Редактировать"
@@ -569,19 +594,25 @@ ApplicationWindow {
                                 }
                             }
 
+
                             ScrollView {
-                                Layout.fillWidth: true
-                                Layout.fillHeight: true
-                                TextArea {
-                                    id: textArea
-                                    readOnly: true
-                                    visible: false
-                                    placeholderText: "История сообщений"
-                                    wrapMode: TextEdit.Wrap
-                                     text: messageHistory.allMessages
-                                }
-                            }
-                        }//ColumnLayout
+                                       Layout.fillWidth: true
+                                       Layout.fillHeight: true
+
+                                       TextArea {
+                                           id: textArea
+                                           readOnly: true
+                                           visible: false
+
+                                           placeholderText: "История сообщений"
+                                           wrapMode: TextEdit.Wrap
+                                           text: feedback
+
+                                       }
+                                   }
+                         }//ColumnLayout
+                        //Here was scroll
+
 
                         Dialog {
                             anchors.centerIn: parent
@@ -604,7 +635,8 @@ ApplicationWindow {
                         }
 
             }//page
-                 }
+                 }//Component
+
              }//StackView
 
                         Popup {

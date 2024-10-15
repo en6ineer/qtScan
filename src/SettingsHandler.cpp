@@ -135,6 +135,10 @@ void SettingsHandler::loadSettings() {
     QString filePath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/settings.txt";
     appendLog("Путь загрузки: " + filePath);
     QFile basesFile(filePath);
+    //DELETE BEFORE BUILD RELEASE:
+    //QFile::remove(filePath); //ACCURACY!
+    //WARNING!!!!!
+
     if (basesFile.open(QIODevice::ReadOnly)) {
         appendLog("Файл существует!");
         QTextStream in(&basesFile);

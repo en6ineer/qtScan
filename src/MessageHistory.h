@@ -15,7 +15,7 @@ public:
      void addMessage(const QString &message);
 
     // Метод для получения всех сообщений как одной строки
-    Q_INVOKABLE QString allMessages() const;
+    Q_INVOKABLE QString allMessages();
 
 
 signals:

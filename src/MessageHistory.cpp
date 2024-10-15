@@ -17,6 +17,6 @@ void MessageHistory::addMessage(const QString &message) {
 }
 
 // Метод для получения всех сообщений как одной строки
-QString MessageHistory::allMessages() const {
+QString MessageHistory::allMessages() {
     return m_messages.join("\n");  // Возвращаем сообщения через перенос строки
 }
