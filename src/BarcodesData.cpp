@@ -63,15 +63,15 @@ QHash<int, QByteArray> BarcodesData::roleNames() const
     return roles;
 }
 
-void BarcodesData::addRow(const QString &barcode) //, int quantity
+void BarcodesData::addRow(const QString &barcode)
 {
     // Проверяем, существует ли строка с таким штрихкодом
     for (int i = 0; i < m_data.size(); ++i) {
         if (m_data[i].barcode == barcode) {
             // Если строка найдена, увеличиваем количество
-            m_data[i].quantity += 1; //, int quantity
-            // Уведомляем об изменении данных в строке
-            emit dataChanged(index(i, 0), index(i, 2), {QuantityRole});
+            // m_data[i].quantity += 1; //, int quantity
+            // // Уведомляем об изменении данных в строке
+            // emit dataChanged(index(i, 0), index(i, 2), {QuantityRole});
             return;
         }
     }

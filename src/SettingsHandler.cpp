@@ -2,6 +2,8 @@
 #include <QFile>
 #include <QDataStream>
 #include <QStandardPaths>
+#include <QDateTime>
+#include <QCryptographicHash>
 
 // Конструктор класса SettingsHandler, инициализирует объект и загружает настройки
 SettingsHandler::SettingsHandler(QObject *parent)
@@ -150,7 +152,7 @@ void SettingsHandler::loadSettings() {
             if (dbName.isEmpty()) {
                 appendLog("файл пуст!!");
                 break;
-            }
+            } QFile basesFile(filePath);
 
             Database db;
             db.name = dbName;
@@ -179,7 +181,19 @@ void SettingsHandler::loadSettings() {
         basesFile.close();
         emit databasesChanged();
         appendLog("Настройки загружены\n");
+
     }
+
+    QString answer = "false";
+    QString keyPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/conf.txt";
+    QFile keyFile(keyPath);
+    if (keyFile.open(QIODevice::ReadOnly)) {
+        QTextStream in(&keyFile);
+        answer = in.readLine();
+        keyFile.close();
+    }
+    m_keyLicense = answer.toInt();
+    emit keyLicenseChanged();
 }
 
 QString SettingsHandler::getSettings(){
@@ -189,3 +203,55 @@ QString SettingsHandler::getSettings(){
     }
     return QString();
 }
+
+
+// Получение значения лицензии
+bool SettingsHandler::getKeyLicense() const
+{
+    return m_keyLicense;
+}
+
+
+QString generateKey(const QDate& validDate) {
+    // Получаем строку даты в формате YYYY-MM-DD
+    QString dateStr = validDate.toString("yyyy-MM-dd");
+
+
+    QString secretKey = "ProgramIsFree";
+    QString combinedString = dateStr + secretKey;
+
+    // Хешируем комбинированную строку
+    QByteArray hash = QCryptographicHash::hash(
+        combinedString.toUtf8(),
+        QCryptographicHash::Sha256
+        );
+
+    // Возвращаем первые 16 символов хеша в виде hex-строки
+    return hash.toHex().left(16);
+}
+
+
+
+// Установка значения лицензии
+bool SettingsHandler::setKeyLicense(const QString &license)
+{
+
+    QDate currentDate = QDate::currentDate();
+
+    // Генерируем ключ для текущей даты
+    QString expectedKey = generateKey(currentDate);
+
+    // Сравниваем введенный ключ с ожидаемым
+    bool answer = (license == expectedKey);
+        QString filePath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/conf.txt";
+        QFile keyFile(filePath);
+        if (keyFile.open(QIODevice::WriteOnly)) {
+            QTextStream out(&keyFile);
+            out << (answer ? "1" : "0");  // Записываем значение в файл
+            keyFile.close();
+        }
+        m_keyLicense = answer;
+        emit keyLicenseChanged();
+        return m_keyLicense;
+}
+

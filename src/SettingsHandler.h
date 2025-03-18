@@ -21,6 +21,7 @@ class SettingsHandler : public QObject
     Q_PROPERTY(QString logMessages READ logMessages NOTIFY logMessagesChanged)
     Q_PROPERTY(QStringList databaseNames READ getDatabaseNames NOTIFY databasesChanged)
     Q_PROPERTY(Database currentDatabase READ currentDatabase WRITE setCurrentDatabase NOTIFY currentDatabaseChanged)
+    Q_PROPERTY(bool keyLicense READ getKeyLicense WRITE setKeyLicense NOTIFY keyLicenseChanged)
 
 public:
     explicit SettingsHandler(QObject *parent = nullptr);
@@ -38,17 +39,22 @@ public:
     Q_INVOKABLE QStringList getDatabaseNames();
     Q_INVOKABLE QString getSettings();
     QString logMessages() const;
+    // Методы для работы с лицензионным ключом
+    Q_INVOKABLE bool getKeyLicense() const;
+    Q_INVOKABLE bool setKeyLicense(const QString &license);
 
 signals:
     void databasesChanged();
     void currentDatabaseChanged();
     void logMessagesChanged();
+    void keyLicenseChanged();
 
 private:
     QMap<QString, Database> m_databases;
     QStringList m_databaseNames;
     Database m_currentDatabase;
     QString m_logMessages;
+    bool m_keyLicense;
 
 
 };

@@ -24,6 +24,7 @@ qt_add_executable(qtandrApp src/main.cpp
     src/MessageHistory.h src/MessageHistory.cpp
 
 
+
 )
 
 qt_add_resources(qtandrApp "configuration"
@@ -41,6 +42,10 @@ target_link_libraries(qtandrApp PRIVATE
 set_target_properties(qtandrApp PROPERTIES
        QT_ANDROID_PACKAGE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/android
    )
+
+
+# Включение подписи для релизной сборки
+set(CMAKE_ANDROID_APK_SIGN true)
 set(QT_QML_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/qml)
 set(QML_IMPORT_PATH ${QT_QML_OUTPUT_DIRECTORY}
     CACHE STRING "Import paths for Qt Creator's code model"
