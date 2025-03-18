@@ -21,7 +21,8 @@ class SettingsHandler : public QObject
     Q_PROPERTY(QString logMessages READ logMessages NOTIFY logMessagesChanged)
     Q_PROPERTY(QStringList databaseNames READ getDatabaseNames NOTIFY databasesChanged)
     Q_PROPERTY(Database currentDatabase READ currentDatabase WRITE setCurrentDatabase NOTIFY currentDatabaseChanged)
-    Q_PROPERTY(bool keyLicense READ getKeyLicense WRITE setKeyLicense NOTIFY keyLicenseChanged)
+    Q_PROPERTY(bool keyLicense READ getKeyLicense NOTIFY keyLicenseChanged)
+
 
 public:
     explicit SettingsHandler(QObject *parent = nullptr);
